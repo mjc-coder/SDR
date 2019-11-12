@@ -1,0 +1,602 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - My Program Test Coverage - libraries/streams/QPSK.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">libraries/streams</a> - QPSK.cpp<span style="font-size: 80%;"> (source / <a href="QPSK.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">My Program Test Coverage</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">262</td>
+            <td class="headerCovTableEntry">290</td>
+            <td class="headerCovTableEntryHi">90.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-10-20 11:47:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Legend:</td>
+            <td class="headerValueLeg">            Lines:
+            <span class="coverLegendCov">hit</span>
+            <span class="coverLegendNoCov">not hit</span>
+            | Branches:
+            <span class="coverLegendCov">+</span> taken
+            <span class="coverLegendNoCov">-</span> not taken
+            <span class="coverLegendNoCov">#</span> not executed
+</td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : //</a>
+<span class="lineNum">       2 </span>                :            : // Created by Micheal Cowan on 2019-08-16.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : 
+<span class="lineNum">       5 </span>                :            : #include &lt;common/Common_Deffinitions.h&gt;
+<span class="lineNum">       6 </span>                :            : #include &lt;streams/QPSK.h&gt;
+<span class="lineNum">       7 </span>                :            : #include &lt;DigitalSignalProcessing/Resample.h&gt;
+<span class="lineNum">       8 </span>                :            : #include &lt;FIR-filter-class/filt.h&gt;
+<span class="lineNum">       9 </span>                :            : #include &lt;DigitalSignalProcessing/Normalize.h&gt;
+<span class="lineNum">      10 </span>                :            : #include &lt;fstream&gt;
+<span class="lineNum">      11 </span>                :            : #include &lt;iomanip&gt;
+<span class="lineNum">      12 </span>                :            : #include &lt;iostream&gt;
+<span class="lineNum">      13 </span>                :            : 
+<span class="lineNum">      14 </span>                :            : const RADIO_DATA_TYPE QPSK::LUT_REAL[4] = { 1, -1,  1, -1};
+<span class="lineNum">      15 </span>                :            : const RADIO_DATA_TYPE QPSK::LUT_IMAG[4] = { 1,  1, -1, -1};
+<span class="lineNum">      16 </span>                :            : const RADIO_DATA_TYPE QPSK::LUT_REAL___0[4] = {0,1,2,3};
+<span class="lineNum">      17 </span>                :            : const RADIO_DATA_TYPE QPSK::LUT_REAL__90[4] = {2,0,3,1};
+<span class="lineNum">      18 </span>                :            : const RADIO_DATA_TYPE QPSK::LUT_REAL_180[4] = {3,2,1,0};
+<span class="lineNum">      19 </span>                :            : const RADIO_DATA_TYPE QPSK::LUT_REAL_270[4] = {1,3,0,2};
+<span class="lineNum">      20 </span>                :            : const RADIO_DATA_TYPE QPSK::DEFAULT_UNIQUE_WORD[64] =
+<span class="lineNum">      21 </span>                :            :         { 0,0,0,0,0,0,0,0,
+<span class="lineNum">      22 </span>                :            :           0,0,0,0,0,0,0,0,
+<span class="lineNum">      23 </span>                :            :           0,0,0,0,0,0,0,0,
+<span class="lineNum">      24 </span>                :            :           0,0,0,0,0,0,0,0,
+<span class="lineNum">      25 </span>                :            :           0,0,0,0,0,0,0,0,
+<span class="lineNum">      26 </span>                :            :           0,0,0,0,0,0,0,0,
+<span class="lineNum">      27 </span>                :            :           3,0,2,1,0,3,2,1,
+<span class="lineNum">      28 </span>                :            :           2,0,1,2,3,2,2,3};
+<span class="lineNum">      29 </span>                :            : 
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : // MATLAB rcosine(1/8,1,'sqrt',0.5,8)
+<span class="lineNum">      32 </span>                :            : const RADIO_DATA_TYPE QPSK::RRC_COEFF[] =    {  -0.000882663055055987,  -0.000746201590523265, -0.000336789968798916,  0.000225038893553655,
+<span class="lineNum">      33 </span>                :            :                                                  0.000757880681389978,   0.001077943504359050,  0.001062303725777150,  0.000695521249813576,
+<span class="lineNum">      34 </span>                :            :                                                  8.24465490986367e-05,  -0.000579554041955506, -0.001062303725777150, -0.001183702054816000,
+<span class="lineNum">      35 </span>                :            :                                                  -0.000874477709296126,  -0.000211083163638599,  0.000599193283619645,  0.001279536876191750,
+<span class="lineNum">      36 </span>                :            :                                                  0.001573979573701230,   0.001338143762729140,  0.000599193283619642, -0.000438236415412023,
+<span class="lineNum">      37 </span>                :            :                                                  -0.001446863119017230,  -0.002078893324143190, -0.002084671221261930, -0.001408617284422990,
+<span class="lineNum">      38 </span>                :            :                                                  -0.000227352605090172,   0.001088699270085450,  0.002084671221261940,  0.002371289907799650,
+<span class="lineNum">      39 </span>                :            :                                                  0.001768388256576610,   0.000391988582678128, -0.001351122110122730, -0.002869993360503870,
+<span class="lineNum">      40 </span>                :            :                                                  -0.003572683794274230,  -0.003072685906611650, -0.001351122110122720,  0.001186107048403510,
+<span class="lineNum">      41 </span>                :            :                                                  0.003789403406949890,   0.005575980755162950,  0.005816670050933640,  0.004213278581633850,
+<span class="lineNum">      42 </span>                :            :                                                  0.001071805138282270,  -0.002702696087965530, -0.005816670050933650, -0.006968745846090550,
+<span class="lineNum">      43 </span>                :            :                                                  -0.005305164769729840,  -0.000815536975401244,  0.005468827588591990,  0.011573823048484000,
+<span class="lineNum">      44 </span>                :            :                                                  0.015005271935951800,   0.013430574641186900,  0.005468827588591980, -0.008615615450369140,
+<span class="lineNum">      45 </span>                :            :                                                  -0.026525823848649200,  -0.044008760276746200, -0.055452254485567400, -0.054931750238658300,
+<span class="lineNum">      46 </span>                :            :                                                  -0.037513179839879400,  -0.000532386899804849,  0.055452254485567400,  0.126288206185736000,
+<span class="lineNum">      47 </span>                :            :                                                  0.204577471545948000,   0.280728910881642000,  0.344536138081295000,  0.386975375596443000,
+<span class="lineNum">      48 </span>                :            :                                                  0.401855774335913000,   0.386975375596443000,  0.344536138081295000,  0.280728910881642000,
+<span class="lineNum">      49 </span>                :            :                                                  0.204577471545948000,   0.126288206185736000,  0.055452254485567400, -0.000532386899804849,
+<span class="lineNum">      50 </span>                :            :                                                  -0.037513179839879400,  -0.054931750238658300, -0.055452254485567400, -0.044008760276746200,
+<span class="lineNum">      51 </span>                :            :                                                  -0.026525823848649200,  -0.008615615450369140,  0.005468827588591980,  0.013430574641186900,
+<span class="lineNum">      52 </span>                :            :                                                  0.015005271935951800,   0.011573823048484000,  0.005468827588591990, -0.000815536975401244,
+<span class="lineNum">      53 </span>                :            :                                                  -0.005305164769729840,  -0.006968745846090550, -0.005816670050933650, -0.002702696087965530,
+<span class="lineNum">      54 </span>                :            :                                                  0.001071805138282270,   0.004213278581633850,  0.005816670050933640,  0.005575980755162950,
+<span class="lineNum">      55 </span>                :            :                                                  0.003789403406949890,   0.001186107048403510, -0.001351122110122720, -0.003072685906611650,
+<span class="lineNum">      56 </span>                :            :                                                  -0.003572683794274230,  -0.002869993360503870, -0.001351122110122730,  0.000391988582678128,
+<span class="lineNum">      57 </span>                :            :                                                  0.001768388256576610,   0.002371289907799650,  0.002084671221261940,  0.001088699270085450,
+<span class="lineNum">      58 </span>                :            :                                                  -0.000227352605090172,  -0.001408617284422990, -0.002084671221261930, -0.002078893324143190,
+<span class="lineNum">      59 </span>                :            :                                                  -0.001446863119017230,  -0.000438236415412023,  0.000599193283619642,  0.001338143762729140,
+<span class="lineNum">      60 </span>                :            :                                                  0.001573979573701230,   0.001279536876191750,  0.000599193283619645, -0.000211083163638599,
+<span class="lineNum">      61 </span>                :            :                                                  -0.000874477709296126,  -0.001183702054816000, -0.001062303725777150, -0.000579554041955506,
+<span class="lineNum">      62 </span>                :            :                                                  8.24465490986367e-05,   0.000695521249813576,  0.001062303725777150,  0.001077943504359050,
+<span class="lineNum">      63 </span>                :            :                                                  0.000757880681389978,   0.000225038893553655, -0.000336789968798916, -0.000746201590523265,
+<a name="64"><span class="lineNum">      64 </span>                :            :                                                  -0.000882663055055987 };</a>
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :<span class="lineCov">        900 : QPSK::QPSK(const RADIO_DATA_TYPE* UniqueWord,</span>
+<span class="lineNum">      67 </span>                :            :            size_t UniqueWordLength)
+<span class="lineNum">      68 </span>                :<span class="lineCov">        450 :         : Register_mu(0)</span>
+<span class="lineNum">      69 </span>                :<span class="lineCov">        450 :         , Register_I(0)</span>
+<span class="lineNum">      70 </span>                :<span class="lineCov">        450 :         , Register_Q(0)</span>
+<span class="lineNum">      71 </span>                :<span class="lineCov">        450 :         , m_RealData(0)</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">        450 :         , m_length(0)</span>
+<span class="lineNum">      73 </span>                :<span class="lineCov">        450 :         , normalization_max(0)</span>
+<span class="lineNum">      74 </span>                :<span class="lineCov">        450 :         , m_phase_ambiguity_cc_000(10, 5, 5)</span>
+<span class="lineNum">      75 </span>                :<span class="lineCov">        450 :         , m_phase_ambiguity_cc_090(10, 5, 5)</span>
+<span class="lineNum">      76 </span>                :<span class="lineCov">        450 :         , m_phase_ambiguity_cc_180(10, 5, 5)</span>
+<span class="lineNum">      77 </span>                :<span class="lineCov">        450 :         , m_phase_ambiguity_cc_270(10, 5, 5)</span>
+<span class="lineNum">      78 </span>                :<span class="lineCov">        450 :         , m_differential_decode_delay(1)</span>
+<span class="lineNum">      79 </span>                :<span class="lineCov">        450 :         , UW_SIZE(UniqueWordLength)</span>
+<span class="lineNum">      80 </span>                :<span class="lineCov">        450 : {</span>
+<span class="lineNum">      81 </span>                :            :     // Initialize Structures
+<span class="lineNum">      82 </span>                :<span class="lineCov">        450 :     memset(&amp;SymbolTimingSynchronizationVariables, 0, sizeof(SymbolTimingSynchronizationVars));</span>
+<span class="lineNum">      83 </span>                :<span class="lineCov">        450 :     memset(&amp;Interp_I_Channel, 0, sizeof(InterpData));</span>
+<span class="lineNum">      84 </span>                :<span class="lineCov">        450 :     memset(&amp;Interp_Q_Channel, 0, sizeof(InterpData));</span>
+<span class="lineNum">      85 </span>                :<span class="lineCov">        450 :     GardnerDetectorVariables.delay1 = 1;</span>
+<span class="lineNum">      86 </span>                :<span class="lineCov">        450 :     GardnerDetectorVariables.delay2 = 1;</span>
+<span class="lineNum">      87 </span>                :<span class="lineCov">        450 :     GardnerDetectorVariables.delay3 = 1;</span>
+<span class="lineNum">      88 </span>                :<span class="lineCov">        450 :     GardnerDetectorVariables.delay4 = 1;</span>
+<span class="lineNum">      89 </span>                :<span class="lineCov">        450 :     memset(&amp;LoopFilterVariables, 0, sizeof(LoopFilterVars));</span>
+<span class="lineNum">      90 </span>                :<span class="lineCov">        450 :     memset(&amp;NcoControlVariables, 0, sizeof(NcoControlVars));</span>
+<span class="lineNum">      91 </span>                :<span class="lineCov">        450 :     memset(&amp;PhaseCorrectionVariables, 0, sizeof(PhaseCorrectionVars));</span>
+<span class="lineNum">      92 </span>                :            : 
+<span class="lineNum">      93 </span>                :<span class="lineCov">        450 :     PhaseCorrectionVariables.dds_real = 1;</span>
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :            :     // Configure Unique Words
+<span class="lineNum">      96 </span>                :<span class="lineCov">        450 :     if(UW_SIZE &gt; 64) return; // Size check</span>
+<span class="lineNum">      97 </span>                :<span class="lineCov">        450 :     memset(uw_000, 0, 64*sizeof(RADIO_DATA_TYPE));</span>
+<span class="lineNum">      98 </span>                :<span class="lineCov">        450 :     memset(uw_090, 0, 64*sizeof(RADIO_DATA_TYPE));</span>
+<span class="lineNum">      99 </span>                :<span class="lineCov">        450 :     memset(uw_180, 0, 64*sizeof(RADIO_DATA_TYPE));</span>
+<span class="lineNum">     100 </span>                :<span class="lineCov">        450 :     memset(uw_270, 0, 64*sizeof(RADIO_DATA_TYPE));</span>
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :<span class="lineCov">       7650 :     for(int i = 64-1; i &gt;= 64-UniqueWordLength; i--)</span>
+<span class="lineNum">     103 </span>                :            :     {
+<span class="lineNum">     104 </span>                :<span class="lineCov">       7200 :         if(UniqueWord[i] &gt;= 0 &amp;&amp; UniqueWord[i] &lt;= 3)</span>
+<span class="lineNum">     105 </span>                :            :         {
+<span class="lineNum">     106 </span>                :<span class="lineCov">       7200 :             uw_000[i] = LUT_REAL___0[(int)UniqueWord[i]];</span>
+<span class="lineNum">     107 </span>                :<span class="lineCov">       7200 :             uw_090[i] = LUT_REAL_270[(int)UniqueWord[i]];</span>
+<span class="lineNum">     108 </span>                :<span class="lineCov">       7200 :             uw_180[i] = LUT_REAL_180[(int)UniqueWord[i]];</span>
+<span class="lineNum">     109 </span>                :<span class="lineCov">       7200 :             uw_270[i] = LUT_REAL__90[(int)UniqueWord[i]];</span>
+<span class="lineNum">     110 </span>                :<span class="lineCov">       7200 :         }</span>
+<span class="lineNum">     111 </span>                :            :         else
+<span class="lineNum">     112 </span>                :            :         {
+<span class="lineNum">     113 </span>                :<span class="lineNoCov">          0 :             uw_000[i] = 0;</span>
+<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :             uw_090[i] = 0;</span>
+<span class="lineNum">     115 </span>                :<span class="lineNoCov">          0 :             uw_180[i] = 0;</span>
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :             uw_270[i] = 0;</span>
+<span class="lineNum">     117 </span>                :            :         }
+<span class="lineNum">     118 </span>                :<span class="lineCov">       7200 :     }</span>
+<span class="lineNum">     119 </span>                :            : 
+<a name="120"><span class="lineNum">     120 </span>                :<span class="lineCov">        900 : }</span></a>
+<span class="lineNum">     121 </span>                :            : 
+<span class="lineNum">     122 </span>                :<span class="lineCov">        900 : QPSK::~QPSK()</span>
+<span class="lineNum">     123 </span>                :<span class="lineCov">        450 : {</span>
+<span class="lineNum">     124 </span>                :            : 
+<a name="125"><span class="lineNum">     125 </span>                :<span class="lineCov">        900 : }</span></a>
+<span class="lineNum">     126 </span>                :            : 
+<span class="lineNum">     127 </span>                :<span class="lineCov">         50 : void QPSK::modulate(uint8_t* data_in, size_t length, RADIO_DATA_TYPE* modulated_real, RADIO_DATA_TYPE* modulated_imag, size_t length_modulated)</span>
+<span class="lineNum">     128 </span>                :            : {
+<span class="lineNum">     129 </span>                :<span class="lineCov">         50 :     m_RealData = new RADIO_DATA_TYPE[length*8];</span>
+<span class="lineNum">     130 </span>                :<span class="lineCov">         50 :     m_ImagData = new RADIO_DATA_TYPE[length*8];</span>
+<span class="lineNum">     131 </span>                :<span class="lineCov">         50 :     memset(m_RealData, 0, sizeof(RADIO_DATA_TYPE)*length*8);</span>
+<span class="lineNum">     132 </span>                :<span class="lineCov">         50 :     memset(m_ImagData, 0, sizeof(RADIO_DATA_TYPE)*length*8);</span>
+<span class="lineNum">     133 </span>                :            : 
+<span class="lineNum">     134 </span>                :            :     // LUT convert 0,1 to 1,-1
+<span class="lineNum">     135 </span>                :<span class="lineCov">         50 :     encode_LUT(data_in, length);</span>
+<span class="lineNum">     136 </span>                :            : 
+<span class="lineNum">     137 </span>                :            :     // Pulse Shape
+<span class="lineNum">     138 </span>                :<span class="lineCov">         50 :     encode_pulseShape(modulated_real, modulated_imag, length_modulated);</span>
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>                :<span class="lineCov">         50 :     delete[] m_RealData;</span>
+<span class="lineNum">     141 </span>                :<span class="lineCov">         50 :     delete[] m_ImagData;</span>
+<a name="142"><span class="lineNum">     142 </span>                :<span class="lineCov">         50 : }</span></a>
+<span class="lineNum">     143 </span>                :            : 
+<span class="lineNum">     144 </span>                :<span class="lineCov">         75 : void QPSK::encode_LUT(uint8_t* data_in, size_t length)</span>
+<span class="lineNum">     145 </span>                :            : {
+<span class="lineNum">     146 </span>                :<span class="lineCov">         75 :     m_length = length;</span>
+<span class="lineNum">     147 </span>                :            : 
+<span class="lineNum">     148 </span>                :<span class="lineCov">      52575 :     for(size_t index = 0; index &lt; m_length; index++)</span>
+<span class="lineNum">     149 </span>                :            :     {
+<span class="lineNum">     150 </span>                :<span class="lineCov">      52500 :         m_RealData[index] = QPSK::LUT_REAL[data_in[index]];</span>
+<span class="lineNum">     151 </span>                :<span class="lineCov">      52500 :         m_ImagData[index] = QPSK::LUT_IMAG[data_in[index]];</span>
+<span class="lineNum">     152 </span>                :<span class="lineCov">      52500 :     }</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">         75 : }</span>
+<a name="154"><span class="lineNum">     154 </span>                :            : </a>
+<span class="lineNum">     155 </span>                :            : 
+<span class="lineNum">     156 </span>                :<span class="lineCov">         75 : void QPSK::encode_pulseShape(RADIO_DATA_TYPE* real_data, RADIO_DATA_TYPE* imag_data, size_t output_length)</span>
+<span class="lineNum">     157 </span>                :            : {
+<span class="lineNum">     158 </span>                :<span class="lineCov">         75 :     if(output_length != 8*m_length)</span>
+<span class="lineNum">     159 </span>                :            :     {
+<span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 :         std::cout &lt;&lt; &quot;ERROR:: QPSK modulation output arrays are not large enough!!!&quot; &lt;&lt; std::endl;</span>
+<span class="lineNum">     161 </span>                :<span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     162 </span>                :            :     }
+<span class="lineNum">     163 </span>                :            :     // clear array
+<span class="lineNum">     164 </span>                :<span class="lineCov">         75 :     memset(real_data, 0, output_length);</span>
+<span class="lineNum">     165 </span>                :<span class="lineCov">         75 :     memset(imag_data, 0, output_length);</span>
+<span class="lineNum">     166 </span>                :<span class="lineCov">         75 :     RADIO_DATA_TYPE* r_data = new RADIO_DATA_TYPE[(m_length*8)+(129*2)];  // Upsample 8, and include forward buffer for FIR transport</span>
+<span class="lineNum">     167 </span>                :<span class="lineCov">         75 :     RADIO_DATA_TYPE* i_data = new RADIO_DATA_TYPE[(m_length*8)+(129*2)];  // Upsample 8, and include forward buffer for FIR transport</span>
+<span class="lineNum">     168 </span>                :            : 
+<span class="lineNum">     169 </span>                :            :     // clear memory
+<span class="lineNum">     170 </span>                :<span class="lineCov">         75 :     memset(r_data, 0, ((m_length*8)+(129*2))*sizeof(RADIO_DATA_TYPE));</span>
+<span class="lineNum">     171 </span>                :<span class="lineCov">         75 :     memset(i_data, 0, ((m_length*8)+(129*2))*sizeof(RADIO_DATA_TYPE));</span>
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>                :            :     // Upsample the arrays
+<span class="lineNum">     174 </span>                :<span class="lineCov">         75 :     (void)upsample_fill_w_zeros(m_RealData, m_length, &amp;r_data[129], m_length*8, 8);</span>
+<span class="lineNum">     175 </span>                :<span class="lineCov">         75 :     (void)upsample_fill_w_zeros(m_ImagData, m_length, &amp;i_data[129], m_length*8, 8);</span>
+<span class="lineNum">     176 </span>                :            : 
+<span class="lineNum">     177 </span>                :<span class="lineCov">     600075 :     for(int i = 0; i &lt; output_length; i++)</span>
+<span class="lineNum">     178 </span>                :            :     {
+<span class="lineNum">     179 </span>                :<span class="lineCov">   78000000 :         for(int j = 0; j &lt; 129; j++)</span>
+<span class="lineNum">     180 </span>                :            :         {
+<span class="lineNum">     181 </span>                :<span class="lineCov">   77400000 :             real_data[i] += r_data[i + 129 - j] * RRC_COEFF[129 - j - 1];</span>
+<span class="lineNum">     182 </span>                :<span class="lineCov">   77400000 :             imag_data[i] += i_data[i + 129 - j] * RRC_COEFF[129 - j - 1];</span>
+<span class="lineNum">     183 </span>                :<span class="lineCov">   77400000 :         }</span>
+<span class="lineNum">     184 </span>                :<span class="lineCov">     600000 :     }</span>
+<span class="lineNum">     185 </span>                :            : 
+<span class="lineNum">     186 </span>                :<span class="lineCov">         75 :     delete[] r_data;</span>
+<span class="lineNum">     187 </span>                :<span class="lineCov">         75 :     delete[] i_data;</span>
+<a name="188"><span class="lineNum">     188 </span>                :<span class="lineCov">         75 : }</span></a>
+<span class="lineNum">     189 </span>                :            : 
+<span class="lineNum">     190 </span>                :<span class="lineCov">         25 : void QPSK::demodulate(BBP_Block* input, BBP_Block* output)</span>
+<span class="lineNum">     191 </span>                :            : {
+<span class="lineNum">     192 </span>                :<span class="lineCov">         25 :     m_length = input-&gt;number_of_points()/4;</span>
+<span class="lineNum">     193 </span>                :<span class="lineCov">         25 :     m_RealData = new RADIO_DATA_TYPE[m_length];</span>
+<span class="lineNum">     194 </span>                :<span class="lineCov">         25 :     m_ImagData = new RADIO_DATA_TYPE[m_length];</span>
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>                :<span class="lineCov">         25 :     memset(m_RealData, 0, m_length*sizeof(RADIO_DATA_TYPE));</span>
+<span class="lineNum">     197 </span>                :<span class="lineCov">         25 :     memset(m_ImagData, 0, m_length*sizeof(RADIO_DATA_TYPE));</span>
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>                :            :     // RX Correlator
+<span class="lineNum">     200 </span>                :<span class="lineCov">         25 :     decode_pulseShape(input);</span>
+<span class="lineNum">     201 </span>                :            : 
+<span class="lineNum">     202 </span>                :<span class="lineCov">         25 :     symbol_timing_synchronization();</span>
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>                :<span class="lineCov">         25 :     phase_shift_correction();</span>
+<span class="lineNum">     205 </span>                :            : 
+<span class="lineNum">     206 </span>                :<span class="lineCov">         25 :     phase_ambiguity_correction();</span>
+<span class="lineNum">     207 </span>                :            : 
+<span class="lineNum">     208 </span>                :<span class="lineCov">         25 :     output-&gt;reset();</span>
+<span class="lineNum">     209 </span>                :            :     // load the output block
+<span class="lineNum">     210 </span>                :<span class="lineCov">      25025 :     for(int i = 0; i &lt; m_length; i++)</span>
+<span class="lineNum">     211 </span>                :            :     {
+<span class="lineNum">     212 </span>                :<span class="lineCov">      25000 :         output-&gt;points[i].real(m_RealData[i]);</span>
+<span class="lineNum">     213 </span>                :<span class="lineCov">      25000 :         output-&gt;points[i].imag(m_ImagData[i]);</span>
+<span class="lineNum">     214 </span>                :<span class="lineCov">      25000 :         output-&gt;n_points++;</span>
+<span class="lineNum">     215 </span>                :<span class="lineCov">      25000 :     }</span>
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>                :<span class="lineCov">         25 :     delete[] m_RealData;</span>
+<span class="lineNum">     218 </span>                :<span class="lineCov">         25 :     delete[] m_ImagData;</span>
+<span class="lineNum">     219 </span>                :<span class="lineCov">         25 : }</span>
+<a name="220"><span class="lineNum">     220 </span>                :            : </a>
+<span class="lineNum">     221 </span>                :            : 
+<span class="lineNum">     222 </span>                :<span class="lineCov">         75 : size_t QPSK::decode_pulseShape(BBP_Block* input)</span>
+<span class="lineNum">     223 </span>                :            : {
+<span class="lineNum">     224 </span>                :<span class="lineCov">         75 :     RADIO_DATA_TYPE* real_data = new RADIO_DATA_TYPE[input-&gt;number_of_points()+(129*2)];  // Upsample 8, and include forward buffer for FIR transport</span>
+<span class="lineNum">     225 </span>                :<span class="lineCov">         75 :     RADIO_DATA_TYPE* imag_data = new RADIO_DATA_TYPE[input-&gt;number_of_points()+(129*2)];  // Upsample 8, and include forward buffer for FIR transport</span>
+<span class="lineNum">     226 </span>                :<span class="lineCov">         75 :     RADIO_DATA_TYPE* real_data_interp = new RADIO_DATA_TYPE[input-&gt;number_of_points()];   // Upsample 8, and include forward buffer for FIR transport</span>
+<span class="lineNum">     227 </span>                :<span class="lineCov">         75 :     RADIO_DATA_TYPE* imag_data_interp = new RADIO_DATA_TYPE[input-&gt;number_of_points()];   // Upsample 8, and include forward buffer for FIR transport</span>
+<span class="lineNum">     228 </span>                :            : 
+<span class="lineNum">     229 </span>                :<span class="lineCov">         75 :     memset(real_data, 0, (input-&gt;number_of_points()+(129*2))*sizeof(RADIO_DATA_TYPE));</span>
+<span class="lineNum">     230 </span>                :<span class="lineCov">         75 :     memset(imag_data, 0, (input-&gt;number_of_points()+(129*2))*sizeof(RADIO_DATA_TYPE));</span>
+<span class="lineNum">     231 </span>                :<span class="lineCov">         75 :     memset(real_data_interp, 0, input-&gt;number_of_points()*sizeof(RADIO_DATA_TYPE));</span>
+<span class="lineNum">     232 </span>                :<span class="lineCov">         75 :     memset(imag_data_interp, 0, input-&gt;number_of_points()*sizeof(RADIO_DATA_TYPE));</span>
+<span class="lineNum">     233 </span>                :            : 
+<span class="lineNum">     234 </span>                :            :     // Initialize data
+<span class="lineNum">     235 </span>                :<span class="lineCov">     402575 :     for(int i = 0; i &lt; input-&gt;number_of_points(); i++)</span>
+<span class="lineNum">     236 </span>                :            :     {
+<span class="lineNum">     237 </span>                :<span class="lineCov">     402500 :         real_data[i+129] = input-&gt;points[i].real();</span>
+<span class="lineNum">     238 </span>                :<span class="lineCov">     402500 :         imag_data[i+129] = input-&gt;points[i].imag();</span>
+<span class="lineNum">     239 </span>                :<span class="lineCov">     402500 :     }</span>
+<span class="lineNum">     240 </span>                :            : 
+<span class="lineNum">     241 </span>                :<span class="lineCov">     402575 :     for(int i = 0; i &lt; input-&gt;number_of_points(); i++)</span>
+<span class="lineNum">     242 </span>                :            :     {
+<span class="lineNum">     243 </span>                :<span class="lineCov">   52325000 :         for(int j = 0; j &lt; 129; j++)</span>
+<span class="lineNum">     244 </span>                :            :         {
+<span class="lineNum">     245 </span>                :<span class="lineCov">   51922500 :             real_data_interp[i] += real_data[i+129-j] * RRC_COEFF[129-j-1];</span>
+<span class="lineNum">     246 </span>                :<span class="lineCov">   51922500 :             imag_data_interp[i] += imag_data[i+129-j] * RRC_COEFF[129-j-1];</span>
+<span class="lineNum">     247 </span>                :<span class="lineCov">   51922500 :         }</span>
+<span class="lineNum">     248 </span>                :<span class="lineCov">     402500 :     }</span>
+<span class="lineNum">     249 </span>                :            : 
+<span class="lineNum">     250 </span>                :            :     // Downsample by 4
+<span class="lineNum">     251 </span>                :<span class="lineCov">         75 :     (void)decimate(real_data_interp, input-&gt;number_of_points(), 4);</span>
+<span class="lineNum">     252 </span>                :<span class="lineCov">         75 :     (void)decimate(imag_data_interp, input-&gt;number_of_points(), 4);</span>
+<span class="lineNum">     253 </span>                :            : 
+<span class="lineNum">     254 </span>                :<span class="lineCov">         75 :     memcpy(m_RealData, real_data_interp, sizeof(RADIO_DATA_TYPE)*m_length);</span>
+<span class="lineNum">     255 </span>                :<span class="lineCov">         75 :     memcpy(m_ImagData, imag_data_interp, sizeof(RADIO_DATA_TYPE)*m_length);</span>
+<span class="lineNum">     256 </span>                :            : 
+<span class="lineNum">     257 </span>                :<span class="lineCov">         75 :     delete[] real_data_interp;</span>
+<span class="lineNum">     258 </span>                :<span class="lineCov">         75 :     delete[] imag_data_interp;</span>
+<span class="lineNum">     259 </span>                :<span class="lineCov">         75 :     delete[] real_data;</span>
+<span class="lineNum">     260 </span>                :<span class="lineCov">         75 :     delete[] imag_data;</span>
+<span class="lineNum">     261 </span>                :<span class="lineCov">         75 :     return m_length;</span>
+<a name="262"><span class="lineNum">     262 </span>                :            : }</a>
+<span class="lineNum">     263 </span>                :            : 
+<span class="lineNum">     264 </span>                :<span class="lineCov">         75 : void QPSK::symbol_timing_synchronization()</span>
+<span class="lineNum">     265 </span>                :            : {
+<span class="lineNum">     266 </span>                :<span class="lineCov">         75 :     RADIO_DATA_TYPE strobeTemp = 0;</span>
+<span class="lineNum">     267 </span>                :            : 
+<span class="lineNum">     268 </span>                :            :     // Symbol Timing Synchronization
+<span class="lineNum">     269 </span>                :<span class="lineCov">     150075 :     for(int i = 0; i &lt; m_length; i++)</span>
+<span class="lineNum">     270 </span>                :            :     {
+<span class="lineNum">     271 </span>                :<span class="lineCov">     150000 :         strobeTemp = ((NcoControlVariables.delay &lt; 0) ? 1 : 0);</span>
+<span class="lineNum">     272 </span>                :<span class="lineCov">     150000 :         SymbolTimingSynchronizationVariables.mu = StrobeEnabledRegister(SymbolTimingSynchronizationVariables.muDelay*2, strobeTemp, Register_mu);</span>
+<span class="lineNum">     273 </span>                :<span class="lineCov">     150000 :         SymbolTimingSynchronizationVariables.Q = InterpolationFilter(Interp_Q_Channel, m_RealData[i], SymbolTimingSynchronizationVariables.mu);</span>
+<span class="lineNum">     274 </span>                :<span class="lineCov">     150000 :         SymbolTimingSynchronizationVariables.I = InterpolationFilter(Interp_I_Channel, m_ImagData[i], SymbolTimingSynchronizationVariables.mu);</span>
+<span class="lineNum">     275 </span>                :<span class="lineCov">     150000 :         SymbolTimingSynchronizationVariables.muDelay = NcoControl(LoopFilter(GardnerDetector(SymbolTimingSynchronizationVariables.I, SymbolTimingSynchronizationVariables.Q, strobeTemp)));</span>
+<span class="lineNum">     276 </span>                :<span class="lineCov">     150000 :         m_RealData[i] = StrobeEnabledRegister(SymbolTimingSynchronizationVariables.Q, strobeTemp, Register_Q);</span>
+<span class="lineNum">     277 </span>                :<span class="lineCov">     150000 :         m_ImagData[i] = StrobeEnabledRegister(SymbolTimingSynchronizationVariables.I, strobeTemp, Register_I);</span>
+<span class="lineNum">     278 </span>                :<span class="lineCov">     150000 :     }</span>
+<a name="279"><span class="lineNum">     279 </span>                :<span class="lineCov">         75 : }</span></a>
+<span class="lineNum">     280 </span>                :            : 
+<span class="lineNum">     281 </span>                :<span class="lineCov">     300700 : RADIO_DATA_TYPE QPSK::InterpolationFilter(InterpData&amp; data, RADIO_DATA_TYPE in, RADIO_DATA_TYPE mu)</span>
+<span class="lineNum">     282 </span>                :            : {
+<span class="lineNum">     283 </span>                :<span class="lineCov">     300700 :     const RADIO_DATA_TYPE K = -0.5;</span>
+<span class="lineNum">     284 </span>                :            : 
+<span class="lineNum">     285 </span>                :<span class="lineCov">     300700 :     RADIO_DATA_TYPE V1 = data.delay1 - K*in;</span>
+<span class="lineNum">     286 </span>                :<span class="lineCov">     300700 :     RADIO_DATA_TYPE V2 = V1 + data.delay2;</span>
+<span class="lineNum">     287 </span>                :<span class="lineCov">     300700 :     RADIO_DATA_TYPE V3 = V2 - data.delay3;</span>
+<span class="lineNum">     288 </span>                :<span class="lineCov">     300700 :     RADIO_DATA_TYPE V4 = K*in - data.delay1 + data.delay4;</span>
+<span class="lineNum">     289 </span>                :<span class="lineCov">     300700 :     RADIO_DATA_TYPE V5 = V4 + data.delay2;</span>
+<span class="lineNum">     290 </span>                :<span class="lineCov">     300700 :     RADIO_DATA_TYPE V6 = data.delay3 + V5;</span>
+<span class="lineNum">     291 </span>                :<span class="lineCov">     300700 :     RADIO_DATA_TYPE V7 = V3*mu + V6;</span>
+<span class="lineNum">     292 </span>                :<span class="lineCov">     300700 :     RADIO_DATA_TYPE V8 = data.delay5 + mu * V7;</span>
+<span class="lineNum">     293 </span>                :            : 
+<span class="lineNum">     294 </span>                :            :     // Generate output before updating the Delays
+<span class="lineNum">     295 </span>                :<span class="lineCov">     300700 :     RADIO_DATA_TYPE toReturn = V8;</span>
+<span class="lineNum">     296 </span>                :            : 
+<span class="lineNum">     297 </span>                :            :     // Update Delays
+<span class="lineNum">     298 </span>                :<span class="lineCov">     300700 :     data.delay3 = data.delay2;</span>
+<span class="lineNum">     299 </span>                :<span class="lineCov">     300700 :     data.delay2 = data.delay1;</span>
+<span class="lineNum">     300 </span>                :<span class="lineCov">     300700 :     data.delay1 = K*in;</span>
+<span class="lineNum">     301 </span>                :            : 
+<span class="lineNum">     302 </span>                :<span class="lineCov">     300700 :     data.delay5 = data.delay4;</span>
+<span class="lineNum">     303 </span>                :<span class="lineCov">     300700 :     data.delay4 = in;</span>
+<span class="lineNum">     304 </span>                :            : 
+<span class="lineNum">     305 </span>                :<span class="lineCov">     300700 :     return toReturn;</span>
+<a name="306"><span class="lineNum">     306 </span>                :            : }</a>
+<span class="lineNum">     307 </span>                :            : 
+<span class="lineNum">     308 </span>                :<span class="lineCov">     150700 : RADIO_DATA_TYPE QPSK::GardnerDetector(RADIO_DATA_TYPE i, RADIO_DATA_TYPE q, RADIO_DATA_TYPE strobe)</span>
+<span class="lineNum">     309 </span>                :            : {
+<span class="lineNum">     310 </span>                :<span class="lineCov">     150700 :     RADIO_DATA_TYPE toReturn = 0;</span>
+<span class="lineNum">     311 </span>                :            : 
+<span class="lineNum">     312 </span>                :<span class="lineCov">     150700 :     if(strobe &gt;= 0.5)</span>
+<span class="lineNum">     313 </span>                :            :     {
+<span class="lineNum">     314 </span>                :<span class="lineCov">     150550 :         toReturn = (GardnerDetectorVariables.delay3 * (-SIGN_FUNC(q)+SIGN_FUNC(GardnerDetectorVariables.delay4)) +</span>
+<span class="lineNum">     315 </span>                :<span class="lineCov">      75275 :                     (GardnerDetectorVariables.delay1 * (-SIGN_FUNC(i) + SIGN_FUNC(GardnerDetectorVariables.delay2))));</span>
+<span class="lineNum">     316 </span>                :<span class="lineCov">      75275 :     }</span>
+<span class="lineNum">     317 </span>                :            : 
+<span class="lineNum">     318 </span>                :            :     // Configure Delayed values
+<span class="lineNum">     319 </span>                :<span class="lineCov">     150700 :     GardnerDetectorVariables.delay2 = GardnerDetectorVariables.delay1;</span>
+<span class="lineNum">     320 </span>                :<span class="lineCov">     150700 :     GardnerDetectorVariables.delay1 = i;</span>
+<span class="lineNum">     321 </span>                :<span class="lineCov">     150700 :     GardnerDetectorVariables.delay4 = GardnerDetectorVariables.delay3;</span>
+<span class="lineNum">     322 </span>                :<span class="lineCov">     150700 :     GardnerDetectorVariables.delay3 = q;</span>
+<span class="lineNum">     323 </span>                :            : 
+<span class="lineNum">     324 </span>                :<span class="lineCov">     150700 :     return toReturn;</span>
+<a name="325"><span class="lineNum">     325 </span>                :            : }</a>
+<span class="lineNum">     326 </span>                :            : 
+<span class="lineNum">     327 </span>                :<span class="lineCov">     150700 : RADIO_DATA_TYPE QPSK::LoopFilter(RADIO_DATA_TYPE val)</span>
+<span class="lineNum">     328 </span>                :            : {
+<span class="lineNum">     329 </span>                :<span class="lineCov">     150700 :     const RADIO_DATA_TYPE K1 = -0.00587880145347487;</span>
+<span class="lineNum">     330 </span>                :<span class="lineCov">     150700 :     const RADIO_DATA_TYPE K2 = -2.35152058138995e-05;</span>
+<span class="lineNum">     331 </span>                :<span class="lineCov">     150700 :     RADIO_DATA_TYPE toReturn = LoopFilterVariables.delay_y + K2*val + K1*(val-LoopFilterVariables.delay_x);</span>
+<span class="lineNum">     332 </span>                :<span class="lineCov">     150700 :     LoopFilterVariables.delay_x = val;</span>
+<span class="lineNum">     333 </span>                :<span class="lineCov">     150700 :     LoopFilterVariables.delay_y = toReturn;</span>
+<span class="lineNum">     334 </span>                :<span class="lineCov">     150700 :     return toReturn;</span>
+<a name="335"><span class="lineNum">     335 </span>                :            : }</a>
+<span class="lineNum">     336 </span>                :            : 
+<span class="lineNum">     337 </span>                :<span class="lineCov">     150700 : RADIO_DATA_TYPE QPSK::NcoControl(RADIO_DATA_TYPE input)</span>
+<span class="lineNum">     338 </span>                :            : {
+<span class="lineNum">     339 </span>                :<span class="lineCov">     150700 :     RADIO_DATA_TYPE toReturn = NcoControlVariables.delay - floor(NcoControlVariables.delay);</span>
+<span class="lineNum">     340 </span>                :<span class="lineCov">     150700 :     NcoControlVariables.delay = toReturn-0.5-input;</span>
+<span class="lineNum">     341 </span>                :<span class="lineCov">     150700 :     return toReturn;</span>
+<a name="342"><span class="lineNum">     342 </span>                :            : }</a>
+<span class="lineNum">     343 </span>                :            : 
+<span class="lineNum">     344 </span>                :<span class="lineCov">     450700 : RADIO_DATA_TYPE QPSK::StrobeEnabledRegister(RADIO_DATA_TYPE input, RADIO_DATA_TYPE strobe, RADIO_DATA_TYPE&amp; reg)</span>
+<span class="lineNum">     345 </span>                :            : {
+<span class="lineNum">     346 </span>                :<span class="lineCov">     450700 :     if(strobe &gt;= 1)</span>
+<span class="lineNum">     347 </span>                :            :     {
+<span class="lineNum">     348 </span>                :<span class="lineCov">     225125 :         reg = input;    // Only change value if the strobe goes high</span>
+<span class="lineNum">     349 </span>                :<span class="lineCov">     225125 :     }</span>
+<span class="lineNum">     350 </span>                :<span class="lineCov">     450700 :     return reg;</span>
+<span class="lineNum">     351 </span>                :            : }
+<span class="lineNum">     352 </span>                :            : 
+<a name="353"><span class="lineNum">     353 </span>                :            : </a>
+<span class="lineNum">     354 </span>                :            : 
+<span class="lineNum">     355 </span>                :<span class="lineCov">         75 : void QPSK::phase_shift_correction()</span>
+<span class="lineNum">     356 </span>                :            : {
+<span class="lineNum">     357 </span>                :<span class="lineCov">         75 :     RADIO_DATA_TYPE temp_real = 0;</span>
+<span class="lineNum">     358 </span>                :<span class="lineCov">         75 :     RADIO_DATA_TYPE temp_imag = 0;</span>
+<span class="lineNum">     359 </span>                :<span class="lineCov">         75 :     const RADIO_DATA_TYPE constant = 8.0;</span>
+<span class="lineNum">     360 </span>                :            : 
+<span class="lineNum">     361 </span>                :<span class="lineCov">     125075 :     for(size_t i = 0; i &lt; m_length; i++)</span>
+<span class="lineNum">     362 </span>                :            :     {
+<span class="lineNum">     363 </span>                :            :         // Multiply DDS results with Input to Correct Phase
+<span class="lineNum">     364 </span>                :<span class="lineCov">     125000 :         RADIO_DATA_TYPE temp = PhaseLoopFilter(constant * (SIGN_FUNC(temp_imag)*temp_real - SIGN_FUNC(temp_real)*temp_imag));</span>
+<span class="lineNum">     365 </span>                :<span class="lineCov">     125000 :         PhaseCorrectionVariables.dds_real = cos(PhaseCorrectionVariables.dds_delay + temp);</span>
+<span class="lineNum">     366 </span>                :<span class="lineCov">     125000 :         PhaseCorrectionVariables.dds_imag = sin(PhaseCorrectionVariables.dds_delay + temp);</span>
+<span class="lineNum">     367 </span>                :<span class="lineCov">     125000 :         PhaseCorrectionVariables.dds_delay = PhaseCorrectionVariables.dds_delay    + temp;</span>
+<span class="lineNum">     368 </span>                :<span class="lineCov">     125000 :         complex_multiply(m_RealData[i], m_ImagData[i], PhaseCorrectionVariables.dds_real, PhaseCorrectionVariables.dds_imag, temp_real, temp_imag);</span>
+<span class="lineNum">     369 </span>                :            : 
+<span class="lineNum">     370 </span>                :            :         // Generate Output
+<span class="lineNum">     371 </span>                :<span class="lineCov">     125000 :         m_RealData[i] = PhaseShiftCorrection_OutputLookup(SIGN_FUNC(temp_real), SIGN_FUNC(temp_imag));</span>
+<span class="lineNum">     372 </span>                :<span class="lineCov">     125000 :         m_ImagData[i] = 0;</span>
+<span class="lineNum">     373 </span>                :<span class="lineCov">     125000 :     }</span>
+<span class="lineNum">     374 </span>                :            : 
+<span class="lineNum">     375 </span>                :<span class="lineCov">         75 :     m_length = decimate(m_RealData, m_length, 2); // Rx correlated data is decimated by 2</span>
+<span class="lineNum">     376 </span>                :<span class="lineCov">         75 : }</span>
+<a name="377"><span class="lineNum">     377 </span>                :            : </a>
+<span class="lineNum">     378 </span>                :            : 
+<span class="lineNum">     379 </span>                :<span class="lineCov">     127525 : void QPSK::complex_multiply(RADIO_DATA_TYPE ra, RADIO_DATA_TYPE ia, RADIO_DATA_TYPE rb, RADIO_DATA_TYPE ib, RADIO_DATA_TYPE&amp; rc, RADIO_DATA_TYPE&amp; ic)</span>
+<span class="lineNum">     380 </span>                :            : {
+<span class="lineNum">     381 </span>                :<span class="lineCov">     127525 :     rc = ra*rb - ia*ib;</span>
+<span class="lineNum">     382 </span>                :<span class="lineCov">     127525 :     ic = ia*rb + ra*ib;</span>
+<span class="lineNum">     383 </span>                :<span class="lineCov">     127525 : }</span>
+<a name="384"><span class="lineNum">     384 </span>                :            : </a>
+<span class="lineNum">     385 </span>                :            : 
+<span class="lineNum">     386 </span>                :<span class="lineCov">     150000 : RADIO_DATA_TYPE QPSK::PhaseLoopFilter(RADIO_DATA_TYPE val)</span>
+<span class="lineNum">     387 </span>                :            : {
+<span class="lineNum">     388 </span>                :<span class="lineCov">     150000 :     const RADIO_DATA_TYPE K1 = 0.0620001240002480;</span>
+<span class="lineNum">     389 </span>                :<span class="lineCov">     150000 :     const RADIO_DATA_TYPE K2 = 0.000992001984003968;</span>
+<span class="lineNum">     390 </span>                :<span class="lineCov">     150000 :     RADIO_DATA_TYPE toReturn = PhaseLoopFilterVariables.delay_y - K1*PhaseLoopFilterVariables.delay_x + (K1+K2)*val;</span>
+<span class="lineNum">     391 </span>                :<span class="lineCov">     150000 :     PhaseLoopFilterVariables.delay_x = val;</span>
+<span class="lineNum">     392 </span>                :<span class="lineCov">     150000 :     PhaseLoopFilterVariables.delay_y = toReturn;</span>
+<span class="lineNum">     393 </span>                :<span class="lineCov">     150000 :     return toReturn;</span>
+<a name="394"><span class="lineNum">     394 </span>                :            : }</a>
+<span class="lineNum">     395 </span>                :            : 
+<span class="lineNum">     396 </span>                :<span class="lineCov">     127500 : RADIO_DATA_TYPE QPSK::PhaseShiftCorrection_OutputLookup(RADIO_DATA_TYPE real, RADIO_DATA_TYPE imag)</span>
+<span class="lineNum">     397 </span>                :            : {
+<span class="lineNum">     398 </span>                :<span class="lineCov">     127500 :     if(real &lt; 0 &amp;&amp; imag &lt; 0)</span>
+<span class="lineNum">     399 </span>                :            :     {
+<span class="lineNum">     400 </span>                :<span class="lineCov">      35325 :         return 3;</span>
+<span class="lineNum">     401 </span>                :            :     }
+<span class="lineNum">     402 </span>                :<span class="lineCov">      92175 :     else if(real &gt; 0 &amp;&amp; imag &lt; 0)</span>
+<span class="lineNum">     403 </span>                :            :     {
+<span class="lineNum">     404 </span>                :<span class="lineCov">      30700 :         return 2;</span>
+<span class="lineNum">     405 </span>                :            :     }
+<span class="lineNum">     406 </span>                :<span class="lineCov">      61475 :     else if(real &lt; 0 &amp;&amp; imag &gt; 0)</span>
+<span class="lineNum">     407 </span>                :            :     {
+<span class="lineNum">     408 </span>                :<span class="lineCov">      29775 :         return 1;</span>
+<span class="lineNum">     409 </span>                :            :     }
+<span class="lineNum">     410 </span>                :            :     else
+<span class="lineNum">     411 </span>                :            :     {
+<span class="lineNum">     412 </span>                :<span class="lineCov">      31700 :         return 0;</span>
+<span class="lineNum">     413 </span>                :            :     }
+<a name="414"><span class="lineNum">     414 </span>                :<span class="lineCov">     127500 : }</span></a>
+<span class="lineNum">     415 </span>                :            : 
+<span class="lineNum">     416 </span>                :<span class="lineCov">         75 : void QPSK::phase_ambiguity_correction()</span>
+<span class="lineNum">     417 </span>                :            : {
+<span class="lineNum">     418 </span>                :            :     // Check ambiguity
+<span class="lineNum">     419 </span>                :<span class="lineCov">      58875 :     for(size_t i = 0; i &lt; m_length-UW_SIZE; i++)</span>
+<span class="lineNum">     420 </span>                :            :     {
+<span class="lineNum">     421 </span>                :<span class="lineCov">      58800 :         size_t match_count_000 = 0;</span>
+<span class="lineNum">     422 </span>                :<span class="lineCov">      58800 :         size_t match_count_090 = 0;</span>
+<span class="lineNum">     423 </span>                :<span class="lineCov">      58800 :         size_t match_count_180 = 0;</span>
+<span class="lineNum">     424 </span>                :<span class="lineCov">      58800 :         size_t match_count_270 = 0;</span>
+<span class="lineNum">     425 </span>                :            :         // check
+<span class="lineNum">     426 </span>                :<span class="lineCov">     999600 :         for(size_t j = 0; j &lt; UW_SIZE; j++)</span>
+<span class="lineNum">     427 </span>                :            :         {
+<span class="lineNum">     428 </span>                :<span class="lineCov">     940800 :             if(m_RealData[i+j] == uw_000[63 - j])</span>
+<span class="lineNum">     429 </span>                :            :             {
+<span class="lineNum">     430 </span>                :<span class="lineCov">     234275 :                 match_count_000++;</span>
+<span class="lineNum">     431 </span>                :<span class="lineCov">     234275 :             }</span>
+<span class="lineNum">     432 </span>                :<span class="lineCov">     706525 :             else if(m_RealData[i+j] == uw_090[63 - j])</span>
+<span class="lineNum">     433 </span>                :            :             {
+<span class="lineNum">     434 </span>                :<span class="lineCov">     234375 :                 match_count_090++;</span>
+<span class="lineNum">     435 </span>                :<span class="lineCov">     234375 :             }</span>
+<span class="lineNum">     436 </span>                :<span class="lineCov">     472150 :             else if(m_RealData[i+j] == uw_180[63 - j])</span>
+<span class="lineNum">     437 </span>                :            :             {
+<span class="lineNum">     438 </span>                :<span class="lineCov">     232525 :                 match_count_180++;</span>
+<span class="lineNum">     439 </span>                :<span class="lineCov">     232525 :             }</span>
+<span class="lineNum">     440 </span>                :<span class="lineCov">     239625 :             else if(m_RealData[i+j] == uw_270[63 - j])</span>
+<span class="lineNum">     441 </span>                :            :             {
+<span class="lineNum">     442 </span>                :<span class="lineCov">     239625 :                 match_count_270++;</span>
+<span class="lineNum">     443 </span>                :<span class="lineCov">     239625 :             }</span>
+<span class="lineNum">     444 </span>                :<span class="lineCov">     940800 :         }</span>
+<span class="lineNum">     445 </span>                :            : 
+<span class="lineNum">     446 </span>                :<span class="lineCov">      58800 :         if(match_count_000 == UW_SIZE)</span>
+<span class="lineNum">     447 </span>                :            :         {
+<span class="lineNum">     448 </span>                :<span class="lineCov">         50 :             std::cout &lt;&lt; &quot;No Phase &quot; &lt;&lt; i &lt;&lt; std::endl;</span>
+<span class="lineNum">     449 </span>                :<span class="lineCov">         50 :             ++m_phase_ambiguity_cc_000;</span>
+<span class="lineNum">     450 </span>                :<span class="lineCov">         50 :             --m_phase_ambiguity_cc_090;</span>
+<span class="lineNum">     451 </span>                :<span class="lineCov">         50 :             --m_phase_ambiguity_cc_180;</span>
+<span class="lineNum">     452 </span>                :<span class="lineCov">         50 :             --m_phase_ambiguity_cc_270;</span>
+<span class="lineNum">     453 </span>                :<span class="lineCov">         50 :         }</span>
+<span class="lineNum">     454 </span>                :<span class="lineCov">      58750 :         else if(match_count_090 == UW_SIZE)</span>
+<span class="lineNum">     455 </span>                :            :         {
+<span class="lineNum">     456 </span>                :<span class="lineCov">         25 :             std::cout &lt;&lt; &quot;90 Phase &quot; &lt;&lt; i &lt;&lt; std::endl;</span>
+<span class="lineNum">     457 </span>                :<span class="lineCov">         25 :             --m_phase_ambiguity_cc_000;</span>
+<span class="lineNum">     458 </span>                :<span class="lineCov">         25 :             ++m_phase_ambiguity_cc_090;</span>
+<span class="lineNum">     459 </span>                :<span class="lineCov">         25 :             --m_phase_ambiguity_cc_180;</span>
+<span class="lineNum">     460 </span>                :<span class="lineCov">         25 :             --m_phase_ambiguity_cc_270;</span>
+<span class="lineNum">     461 </span>                :<span class="lineCov">         25 :         }</span>
+<span class="lineNum">     462 </span>                :<span class="lineCov">      58725 :         else if(match_count_180 == UW_SIZE)</span>
+<span class="lineNum">     463 </span>                :            :         {
+<span class="lineNum">     464 </span>                :<span class="lineNoCov">          0 :             std::cout &lt;&lt; &quot;180 Phase &quot; &lt;&lt; i &lt;&lt; std::endl;</span>
+<span class="lineNum">     465 </span>                :<span class="lineNoCov">          0 :             --m_phase_ambiguity_cc_000;</span>
+<span class="lineNum">     466 </span>                :<span class="lineNoCov">          0 :             --m_phase_ambiguity_cc_090;</span>
+<span class="lineNum">     467 </span>                :<span class="lineNoCov">          0 :             ++m_phase_ambiguity_cc_180;</span>
+<span class="lineNum">     468 </span>                :<span class="lineNoCov">          0 :             --m_phase_ambiguity_cc_270;</span>
+<span class="lineNum">     469 </span>                :<span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     470 </span>                :<span class="lineCov">      58725 :         else if(match_count_270 == UW_SIZE)</span>
+<span class="lineNum">     471 </span>                :            :         {
+<span class="lineNum">     472 </span>                :<span class="lineNoCov">          0 :             std::cout &lt;&lt; &quot;270 Phase &quot; &lt;&lt; i &lt;&lt; std::endl;</span>
+<span class="lineNum">     473 </span>                :<span class="lineNoCov">          0 :             --m_phase_ambiguity_cc_000;</span>
+<span class="lineNum">     474 </span>                :<span class="lineNoCov">          0 :             --m_phase_ambiguity_cc_090;</span>
+<span class="lineNum">     475 </span>                :<span class="lineNoCov">          0 :             --m_phase_ambiguity_cc_180;</span>
+<span class="lineNum">     476 </span>                :<span class="lineNoCov">          0 :             ++m_phase_ambiguity_cc_270;</span>
+<span class="lineNum">     477 </span>                :<span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     478 </span>                :<span class="lineCov">      58800 :     }</span>
+<span class="lineNum">     479 </span>                :            : 
+<span class="lineNum">     480 </span>                :            : 
+<span class="lineNum">     481 </span>                :<span class="lineCov">         75 :     if(m_phase_ambiguity_cc_090.high_confidence())</span>
+<span class="lineNum">     482 </span>                :            :     {
+<span class="lineNum">     483 </span>                :<span class="lineCov">         25 :         std::cout &lt;&lt; &quot;90 Degree Phase Detected&quot; &lt;&lt; std::endl;</span>
+<span class="lineNum">     484 </span>                :            :         // we have 180 Degree inversion
+<span class="lineNum">     485 </span>                :<span class="lineCov">      10025 :         for(size_t i = 0; i &lt; m_length; i++)</span>
+<span class="lineNum">     486 </span>                :            :         {
+<span class="lineNum">     487 </span>                :<span class="lineCov">      10000 :             m_RealData[i] = LUT_REAL__90[(int)m_RealData[i]];</span>
+<span class="lineNum">     488 </span>                :<span class="lineCov">      10000 :         }</span>
+<span class="lineNum">     489 </span>                :<span class="lineCov">         25 :     }</span>
+<span class="lineNum">     490 </span>                :<span class="lineCov">         50 :     else if(m_phase_ambiguity_cc_180.high_confidence())</span>
+<span class="lineNum">     491 </span>                :            :     {
+<span class="lineNum">     492 </span>                :<span class="lineNoCov">          0 :         std::cout &lt;&lt; &quot;180 Degree Phase Detected&quot; &lt;&lt; std::endl;</span>
+<span class="lineNum">     493 </span>                :            :         // we have 180 Degree inversion
+<span class="lineNum">     494 </span>                :<span class="lineNoCov">          0 :         for(size_t i = 0; i &lt; m_length; i++)</span>
+<span class="lineNum">     495 </span>                :            :         {
+<span class="lineNum">     496 </span>                :<span class="lineNoCov">          0 :             m_RealData[i] = LUT_REAL_180[(int)m_RealData[i]];</span>
+<span class="lineNum">     497 </span>                :<span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     498 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     499 </span>                :<span class="lineCov">         50 :     else if(m_phase_ambiguity_cc_270.high_confidence())</span>
+<span class="lineNum">     500 </span>                :            :     {
+<span class="lineNum">     501 </span>                :<span class="lineNoCov">          0 :         std::cout &lt;&lt; &quot;270 Degree Phase Detected&quot; &lt;&lt; std::endl;</span>
+<span class="lineNum">     502 </span>                :            :         // we have 270 Degree inversion
+<span class="lineNum">     503 </span>                :<span class="lineNoCov">          0 :         for(size_t i = 0; i &lt; m_length; i++)</span>
+<span class="lineNum">     504 </span>                :            :         {
+<span class="lineNum">     505 </span>                :<span class="lineNoCov">          0 :             m_RealData[i] = LUT_REAL_270[(int)m_RealData[i]];</span>
+<span class="lineNum">     506 </span>                :<span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     507 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     508 </span>                :            :     // if phase ambiguity 000 was high then nothing needs to be done
+<span class="lineNum">     509 </span>                :<span class="lineCov">         75 : }</span>
+<span class="lineNum">     510 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

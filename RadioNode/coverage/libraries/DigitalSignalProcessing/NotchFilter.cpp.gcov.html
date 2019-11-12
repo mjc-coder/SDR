@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - My Program Test Coverage - libraries/DigitalSignalProcessing/NotchFilter.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">libraries/DigitalSignalProcessing</a> - NotchFilter.cpp<span style="font-size: 80%;"> (source / <a href="NotchFilter.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">My Program Test Coverage</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-10-20 11:47:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Legend:</td>
+            <td class="headerValueLeg">            Lines:
+            <span class="coverLegendCov">hit</span>
+            <span class="coverLegendNoCov">not hit</span>
+            | Branches:
+            <span class="coverLegendCov">+</span> taken
+            <span class="coverLegendNoCov">-</span> not taken
+            <span class="coverLegendNoCov">#</span> not executed
+</td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : //</a>
+<span class="lineNum">       2 </span>                :            : // Created by Micheal Cowan on 9/7/19.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : 
+<span class="lineNum">       5 </span>                :            : #include &quot;NotchFilter.h&quot;
+<span class="lineNum">       6 </span>                :            : 
+<a name="7"><span class="lineNum">       7 </span>                :            : </a>
+<span class="lineNum">       8 </span>                :            : 
+<span class="lineNum">       9 </span>                :<span class="lineNoCov">          0 : NotchFilter::NotchFilter(RADIO_DATA_TYPE notch_bw, RADIO_DATA_TYPE center_freq)</span>
+<span class="lineNum">      10 </span>                :<span class="lineNoCov">          0 :         : R( 1.0 * notch_bw)</span>
+<span class="lineNum">      11 </span>                :<span class="lineNoCov">          0 :         , K( (1-2*R*cos(2.0*3.14159*center_freq) + R*R) / (2-2*cos(2*3.14159*center_freq)))</span>
+<span class="lineNum">      12 </span>                :<span class="lineNoCov">          0 :         , a0(K)</span>
+<span class="lineNum">      13 </span>                :<span class="lineNoCov">          0 :         , a1(-2.0*K*cos(2.0*3.14159*center_freq))</span>
+<span class="lineNum">      14 </span>                :<span class="lineNoCov">          0 :         , a2(K)</span>
+<span class="lineNum">      15 </span>                :<span class="lineNoCov">          0 :         , b1(2.0*R*cos(2.0*3.14159*center_freq))</span>
+<span class="lineNum">      16 </span>                :<span class="lineNoCov">          0 :         , b2(-(R*R))</span>
+<span class="lineNum">      17 </span>                :<span class="lineNoCov">          0 : {</span>
+<span class="lineNum">      18 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="19"><span class="lineNum">      19 </span>                :            : </a>
+<span class="lineNum">      20 </span>                :            : 
+<span class="lineNum">      21 </span>                :<span class="lineNoCov">          0 : void NotchFilter::filter(RADIO_DATA_TYPE* block_in, size_t length)</span>
+<span class="lineNum">      22 </span>                :            : {
+<span class="lineNum">      23 </span>                :            :     static RADIO_DATA_TYPE x_2 = 0.0f;                    // delayed x, y samples
+<span class="lineNum">      24 </span>                :            :     static RADIO_DATA_TYPE x_1 = 0.0f;
+<span class="lineNum">      25 </span>                :            :     static RADIO_DATA_TYPE y_2 = 0.0f;
+<span class="lineNum">      26 </span>                :            :     static RADIO_DATA_TYPE y_1 = 0.0f;
+<span class="lineNum">      27 </span>                :<span class="lineNoCov">          0 :     RADIO_DATA_TYPE delay = 0;</span>
+<span class="lineNum">      28 </span>                :<span class="lineNoCov">          0 :     for (size_t i = 2; i &lt; length; i++)</span>
+<span class="lineNum">      29 </span>                :            :     {
+<span class="lineNum">      30 </span>                :<span class="lineNoCov">          0 :         delay = block_in[i];</span>
+<span class="lineNum">      31 </span>                :<span class="lineNoCov">          0 :         block_in[i] = a0*block_in[i] + a1*x_1 + a2*x_2  // IIR difference equation</span>
+<span class="lineNum">      32 </span>                :<span class="lineNoCov">          0 :                       + b1*y_1 + b2*y_2;</span>
+<span class="lineNum">      33 </span>                :<span class="lineNoCov">          0 :         x_2 = x_1;                              // shift delayed x, y samples</span>
+<span class="lineNum">      34 </span>                :<span class="lineNoCov">          0 :         x_1 = delay;</span>
+<span class="lineNum">      35 </span>                :<span class="lineNoCov">          0 :         y_2 = y_1;</span>
+<span class="lineNum">      36 </span>                :<span class="lineNoCov">          0 :         y_1 = block_in[i];</span>
+<span class="lineNum">      37 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      38 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      39 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

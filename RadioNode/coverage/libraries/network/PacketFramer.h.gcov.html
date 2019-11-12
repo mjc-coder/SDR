@@ -1,0 +1,678 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - My Program Test Coverage - libraries/network/PacketFramer.h</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">libraries/network</a> - PacketFramer.h<span style="font-size: 80%;"> (source / <a href="PacketFramer.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">My Program Test Coverage</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">87</td>
+            <td class="headerCovTableEntry">89</td>
+            <td class="headerCovTableEntryHi">97.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-10-20 11:47:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Legend:</td>
+            <td class="headerValueLeg">            Lines:
+            <span class="coverLegendCov">hit</span>
+            <span class="coverLegendNoCov">not hit</span>
+            | Branches:
+            <span class="coverLegendCov">+</span> taken
+            <span class="coverLegendNoCov">-</span> not taken
+            <span class="coverLegendNoCov">#</span> not executed
+</td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : //</a>
+<span class="lineNum">       2 </span>                :            : // Created by Micheal Cowan on 9/13/19.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : 
+<span class="lineNum">       5 </span>                :            : #ifndef RADIONODE_PACKETFRAMER_H
+<span class="lineNum">       6 </span>                :            : #define RADIONODE_PACKETFRAMER_H
+<span class="lineNum">       7 </span>                :            : 
+<span class="lineNum">       8 </span>                :            : #include &lt;common/BBP_Block.h&gt;
+<span class="lineNum">       9 </span>                :            : #include &lt;common/Common_Deffinitions.h&gt;
+<span class="lineNum">      10 </span>                :            : #include &lt;crc/crc8.h&gt;
+<span class="lineNum">      11 </span>                :            : #include &lt;iostream&gt;
+<span class="lineNum">      12 </span>                :            : #include &lt;common/RingBuffer.h&gt;
+<span class="lineNum">      13 </span>                :            : #include &lt;common/confidence_counter.h&gt;
+<span class="lineNum">      14 </span>                :            : 
+<span class="lineNum">      15 </span>                :            : 
+<span class="lineNum">      16 </span>                :            : // Packet Description
+<span class="lineNum">      17 </span>                :            : // &lt;unique word 32 bit&gt; | &lt;crc 8 bit&gt; | &lt;length 16 bit&gt; | 0xFF
+<span class="lineNum">      18 </span>                :            : // &lt; data &gt; [no more than 1500 bytes because these are UDP packets]
+<span class="lineNum">      19 </span>                :            : //
+<span class="lineNum">      20 </span>                :            : // Converted to serial bits
+<span class="lineNum">      21 </span>                :            : // 64 + 1500*8 = 12064 bytes of single bits 0 and 1
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : #define BBP_BLOCK_PACKET_SIZE 12064
+<span class="lineNum">      24 </span>                :            : #define MAX_PACKETFRAMER_PKT_SIZE 12088   /*64 + 16 + 8 + (1500*8)*/
+<span class="lineNum">      25 </span>                :            : 
+<span class="lineNum">      26 </span>                :            : template &lt;class data_type&gt;
+<span class="lineNum">      27 </span>                :            : class PacketFramer
+<span class="lineNum">      28 </span>                :            : {
+<span class="lineNum">      29 </span>                :            : public:
+<span class="lineNum">      30 </span>                :            :     // 12096 bits comprise a packet
+<span class="lineNum">      31 </span>                :            :     // 64 bits possible for unique word
+<span class="lineNum">      32 </span>                :            :     // 16 bits for length
+<span class="lineNum">      33 </span>                :            :     // 8 bits for CRC
+<span class="lineNum">      34 </span>                :            :     // 1500 bytes of data * 8 bits per byte
+<span class="lineNum">      35 </span>                :            :     // This is the maximum packet size possible.
+<span class="lineNum">      36 </span>                :            :     size_t Max_Packet_Size() const
+<span class="lineNum">      37 </span>                :            :     {
+<span class="lineNum">      38 </span>                :            :         return 64 + 16 + 8 + (1500*8);
+<span class="lineNum">      39 </span>                :            :     }
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :            : 
+<a name="42"><span class="lineNum">      42 </span>                :            : </a>
+<span class="lineNum">      43 </span>                :            : public:
+<span class="lineNum">      44 </span>                :<span class="lineCov">        480 :     PacketFramer( uint64_t unique_word[64], size_t unique_word_size, bool crc_enable)</span>
+<span class="lineNum">      45 </span>                :<span class="lineCov">        240 :     : m_unique_word_size(unique_word_size)</span>
+<span class="lineNum">      46 </span>                :<span class="lineCov">        240 :     , m_crc_enable(crc_enable)</span>
+<span class="lineNum">      47 </span>                :<span class="lineCov">        240 :     , m_pkt(nullptr)</span>
+<span class="lineNum">      48 </span>                :<span class="lineCov">        240 :     , POS_UNIQUE_WORD(0)</span>
+<span class="lineNum">      49 </span>                :<span class="lineCov">        240 :     , POS_LENGTH(unique_word_size)</span>
+<span class="lineNum">      50 </span>                :<span class="lineCov">        240 :     , POS_CRC(POS_LENGTH + 16)</span>
+<span class="lineNum">      51 </span>                :<span class="lineCov">        240 :     , POS_DATA(POS_CRC + 8)</span>
+<span class="lineNum">      52 </span>                :<span class="lineCov">        240 :     {</span>
+<span class="lineNum">      53 </span>                :<span class="lineCov">        240 :         m_pkt = new data_type[MAX_PACKETFRAMER_PKT_SIZE];</span>
+<span class="lineNum">      54 </span>                :<span class="lineCov">        240 :         memcpy(m_unique_word, unique_word, 64*sizeof(data_type)); // load unique word</span>
+<span class="lineNum">      55 </span>                :<span class="lineCov">        240 :         memset(m_pkt, 0, MAX_PACKETFRAMER_PKT_SIZE*sizeof(data_type)); // clear buffer</span>
+<span class="lineNum">      56 </span>                :            : 
+<span class="lineNum">      57 </span>                :            :         // Load the Unique word here
+<span class="lineNum">      58 </span>                :<span class="lineCov">       2160 :         for(size_t i = 0; i &lt; unique_word_size; i++)</span>
+<span class="lineNum">      59 </span>                :            :         {
+<span class="lineNum">      60 </span>                :<span class="lineCov">       1920 :             m_pkt[i] = unique_word[i];</span>
+<span class="lineNum">      61 </span>                :<span class="lineCov">       1920 :         }</span>
+<a name="62"><span class="lineNum">      62 </span>                :<span class="lineCov">        480 :     }</span></a>
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :<span class="lineCov">        480 :     ~PacketFramer()</span>
+<span class="lineNum">      65 </span>                :<span class="lineCov">        240 :     {</span>
+<span class="lineNum">      66 </span>                :<span class="lineCov">        240 :         if(m_pkt)</span>
+<span class="lineNum">      67 </span>                :            :         {
+<span class="lineNum">      68 </span>                :<span class="lineCov">        240 :             delete[] m_pkt;</span>
+<span class="lineNum">      69 </span>                :<span class="lineCov">        240 :         }</span>
+<span class="lineNum">      70 </span>                :<span class="lineCov">        480 :     }</span>
+<span class="lineNum">      71 </span>                :            : 
+<span class="lineNum">      72 </span>                :            :     void checkCRC(bool check)
+<span class="lineNum">      73 </span>                :            :     {
+<span class="lineNum">      74 </span>                :            :         m_crc_enable = check;
+<a name="75"><span class="lineNum">      75 </span>                :            :     }</a>
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>                :<span class="lineCov">        160 :     int serialize(uint8_t* data, size_t length, BBP_Block* pkt)</span>
+<span class="lineNum">      78 </span>                :            :     {
+<span class="lineNum">      79 </span>                :<span class="lineCov">        160 :         uint16_t pkt_length = static_cast&lt;uint16_t&gt;(length);</span>
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :            :         // load packet length
+<span class="lineNum">      82 </span>                :<span class="lineCov">       1440 :         for(int i = 0; i &lt; 8; i++)</span>
+<span class="lineNum">      83 </span>                :            :         {
+<span class="lineNum">      84 </span>                :<span class="lineCov">       1280 :             m_pkt[POS_LENGTH + i] = binary_array[(pkt_length &amp; 0xFF00) &gt;&gt; 8][i];</span>
+<span class="lineNum">      85 </span>                :<span class="lineCov">       1280 :             m_pkt[POS_LENGTH+8+i] = binary_array[(pkt_length &amp; 0x00FF)][i];</span>
+<span class="lineNum">      86 </span>                :<span class="lineCov">       1280 :         }</span>
+<span class="lineNum">      87 </span>                :            : 
+<span class="lineNum">      88 </span>                :            :         // crc insert
+<span class="lineNum">      89 </span>                :<span class="lineCov">        160 :         if(m_crc_enable)</span>
+<span class="lineNum">      90 </span>                :            :         {
+<span class="lineNum">      91 </span>                :<span class="lineCov">         80 :             uint8_t crc = crcCalculator.getCRC(data, length);</span>
+<span class="lineNum">      92 </span>                :<span class="lineCov">        720 :             for(int i = 0; i &lt; 8; i++)</span>
+<span class="lineNum">      93 </span>                :            :             {
+<span class="lineNum">      94 </span>                :<span class="lineCov">        640 :                 m_pkt[POS_CRC + i] = binary_array[crc][i];</span>
+<span class="lineNum">      95 </span>                :<span class="lineCov">        640 :             }</span>
+<span class="lineNum">      96 </span>                :<span class="lineCov">         80 :         }</span>
+<span class="lineNum">      97 </span>                :            :         else
+<span class="lineNum">      98 </span>                :            :         {
+<span class="lineNum">      99 </span>                :            :             // if crc is not enabled, load the crc slot with all zeros
+<span class="lineNum">     100 </span>                :<span class="lineCov">        720 :             for(int i = 0; i &lt; 8; i++)</span>
+<span class="lineNum">     101 </span>                :            :             {
+<span class="lineNum">     102 </span>                :<span class="lineCov">        640 :                 m_pkt[POS_CRC + i] = binary_array[0][i];</span>
+<span class="lineNum">     103 </span>                :<span class="lineCov">        640 :             }</span>
+<span class="lineNum">     104 </span>                :            :         }
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :            :         // load data
+<span class="lineNum">     107 </span>                :<span class="lineCov">        800 :         for(size_t i = 0; i &lt; length; i++)</span>
+<span class="lineNum">     108 </span>                :            :         {
+<span class="lineNum">     109 </span>                :<span class="lineCov">       5760 :             for(int j = 0; j &lt; 8; j++)</span>
+<span class="lineNum">     110 </span>                :            :             {
+<span class="lineNum">     111 </span>                :<span class="lineCov">       5120 :                 m_pkt[POS_DATA+(i*8)+j] = binary_array[data[i]][j];</span>
+<span class="lineNum">     112 </span>                :<span class="lineCov">       5120 :             }</span>
+<span class="lineNum">     113 </span>                :<span class="lineCov">        640 :         }</span>
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>                :            :         // Load the BBP Block with packet
+<span class="lineNum">     116 </span>                :<span class="lineCov">      10400 :         for(size_t i = 0; i &lt; (length*8) + POS_DATA; i++)</span>
+<span class="lineNum">     117 </span>                :            :         {
+<span class="lineNum">     118 </span>                :<span class="lineCov">      10240 :             pkt-&gt;points[i].real(m_pkt[i]);</span>
+<span class="lineNum">     119 </span>                :<span class="lineCov">      10240 :             pkt-&gt;points[i].imag(0);</span>
+<span class="lineNum">     120 </span>                :<span class="lineCov">      10240 :             pkt-&gt;n_points++;</span>
+<span class="lineNum">     121 </span>                :<span class="lineCov">      10240 :         }</span>
+<span class="lineNum">     122 </span>                :            : 
+<span class="lineNum">     123 </span>                :<span class="lineCov">        160 :         return (length*8)+POS_DATA; // total packet size in samples</span>
+<a name="124"><span class="lineNum">     124 </span>                :            :     }</a>
+<span class="lineNum">     125 </span>                :            : 
+<span class="lineNum">     126 </span>                :<span class="lineCov">        160 :     int deserialize(BBP_Block* block, uint8_t* pkt, size_t pkt_buffer_size)</span>
+<span class="lineNum">     127 </span>                :            :     {
+<span class="lineNum">     128 </span>                :<span class="lineCov">        160 :         if(block-&gt;number_of_points() &lt; HeaderSize()) // minimum unique word should never be less than 8</span>
+<span class="lineNum">     129 </span>                :            :         {
+<span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :             return -2;</span>
+<span class="lineNum">     131 </span>                :            :         }
+<span class="lineNum">     132 </span>                :            : 
+<span class="lineNum">     133 </span>                :<span class="lineCov">        160 :         data_type* buffer = new data_type[block-&gt;number_of_points()];</span>
+<span class="lineNum">     134 </span>                :<span class="lineCov">      10400 :         for(int i = 0; i &lt; block-&gt;number_of_points(); i++)</span>
+<span class="lineNum">     135 </span>                :            :         {
+<span class="lineNum">     136 </span>                :<span class="lineCov">      10240 :             buffer[i] = block-&gt;points[i].real();</span>
+<span class="lineNum">     137 </span>                :<span class="lineCov">      10240 :         }</span>
+<span class="lineNum">     138 </span>                :            : 
+<span class="lineNum">     139 </span>                :            :         // check for header
+<span class="lineNum">     140 </span>                :<span class="lineCov">        160 :         if(memcmp(buffer, m_pkt, m_unique_word_size*sizeof(data_type)) != 0)</span>
+<span class="lineNum">     141 </span>                :            :         {
+<span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 :             return -1;</span>
+<span class="lineNum">     143 </span>                :            :         }
+<span class="lineNum">     144 </span>                :            : 
+<span class="lineNum">     145 </span>                :            :         // if we are here it is a valid packet
+<span class="lineNum">     146 </span>                :<span class="lineCov">        160 :         int pkt_length = static_cast&lt;int&gt;((ToByte(buffer, POS_LENGTH) &lt;&lt; 8) | ToByte(buffer, POS_LENGTH + 8));</span>
+<span class="lineNum">     147 </span>                :<span class="lineCov">        160 :         uint8_t pkt_crc = ToByte(buffer, POS_CRC);</span>
+<span class="lineNum">     148 </span>                :            : 
+<span class="lineNum">     149 </span>                :<span class="lineCov">        160 :         uint8_t* pkt_data = new uint8_t[pkt_length];</span>
+<span class="lineNum">     150 </span>                :<span class="lineCov">        800 :         for(int i = 0; i &lt; pkt_length; i++)</span>
+<span class="lineNum">     151 </span>                :            :         {
+<span class="lineNum">     152 </span>                :<span class="lineCov">        640 :             pkt_data[i] = ToByte(buffer,i*8 + POS_DATA);</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">        640 :         }</span>
+<span class="lineNum">     154 </span>                :            : 
+<span class="lineNum">     155 </span>                :            :         // check crc if enabled
+<span class="lineNum">     156 </span>                :<span class="lineCov">        160 :         if(m_crc_enable)</span>
+<span class="lineNum">     157 </span>                :            :         {
+<span class="lineNum">     158 </span>                :<span class="lineCov">         80 :             if(crcCalculator.getCRC(pkt_data, pkt_length) != pkt_crc)</span>
+<span class="lineNum">     159 </span>                :            :             {
+<span class="lineNum">     160 </span>                :<span class="lineCov">         40 :                 pkt_length = -1;</span>
+<span class="lineNum">     161 </span>                :<span class="lineCov">         40 :             }</span>
+<span class="lineNum">     162 </span>                :<span class="lineCov">         80 :         }</span>
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>                :            :         // load returning data message
+<span class="lineNum">     165 </span>                :<span class="lineCov">        160 :         if(pkt_length &lt; pkt_buffer_size) {</span>
+<span class="lineNum">     166 </span>                :<span class="lineCov">        600 :             for (int i = 0; i &lt; pkt_length; i++) {</span>
+<span class="lineNum">     167 </span>                :<span class="lineCov">        480 :                 pkt[i] = pkt_data[i];</span>
+<span class="lineNum">     168 </span>                :<span class="lineCov">        480 :             }</span>
+<span class="lineNum">     169 </span>                :<span class="lineCov">        120 :         } else{</span>
+<span class="lineNum">     170 </span>                :<span class="lineCov">         40 :             pkt_length = -1;</span>
+<span class="lineNum">     171 </span>                :            :         }
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>                :<span class="lineCov">        160 :         delete[] pkt_data;</span>
+<span class="lineNum">     174 </span>                :<span class="lineCov">        160 :         return pkt_length;</span>
+<a name="175"><span class="lineNum">     175 </span>                :<span class="lineCov">        160 :     }</span></a>
+<span class="lineNum">     176 </span>                :            : 
+<span class="lineNum">     177 </span>                :<span class="lineCov">        160 :     size_t HeaderSize() const</span>
+<span class="lineNum">     178 </span>                :            :     {
+<span class="lineNum">     179 </span>                :<span class="lineCov">        160 :         return m_unique_word_size+16+8;</span>
+<span class="lineNum">     180 </span>                :            :     }
+<span class="lineNum">     181 </span>                :            : 
+<span class="lineNum">     182 </span>                :            :     int deserialize(RingBuffer&lt;data_type&gt;&amp; buf, uint8_t* pkt, size_t pkt_buffer_size, bool&amp; validPacket, bool&amp; validCRC, bool&amp; validHeader, size_t&amp; bad_bits)
+<span class="lineNum">     183 </span>                :            :     {
+<span class="lineNum">     184 </span>                :            :         validPacket = false;
+<span class="lineNum">     185 </span>                :            :         validCRC = false;
+<span class="lineNum">     186 </span>                :            :         validHeader = false;
+<span class="lineNum">     187 </span>                :            : 
+<span class="lineNum">     188 </span>                :            :         if(buf.count() &lt; HeaderSize())
+<span class="lineNum">     189 </span>                :            :         {
+<span class="lineNum">     190 </span>                :            :             return 0; // not enough stuff
+<span class="lineNum">     191 </span>                :            :         }
+<span class="lineNum">     192 </span>                :            : 
+<span class="lineNum">     193 </span>                :            :         // header check
+<span class="lineNum">     194 </span>                :            :         bool found = true;
+<span class="lineNum">     195 </span>                :            :         do
+<span class="lineNum">     196 </span>                :            :         {
+<span class="lineNum">     197 </span>                :            :             found = true;
+<span class="lineNum">     198 </span>                :            :             size_t i = 0;
+<span class="lineNum">     199 </span>                :            :             for(; i &lt; m_unique_word_size; i++)
+<span class="lineNum">     200 </span>                :            :             {
+<span class="lineNum">     201 </span>                :            :                 if(buf.value(i) != m_pkt[i])
+<span class="lineNum">     202 </span>                :            :                 {
+<span class="lineNum">     203 </span>                :            :                     found = false; // allows early termination -- but tell the user how many bytes to remove
+<span class="lineNum">     204 </span>                :            :                     break;
+<span class="lineNum">     205 </span>                :            :                 }
+<span class="lineNum">     206 </span>                :            :             }
+<span class="lineNum">     207 </span>                :            : 
+<span class="lineNum">     208 </span>                :            :             if(!found)
+<span class="lineNum">     209 </span>                :            :             {
+<span class="lineNum">     210 </span>                :            :                 buf.remove(i+1); // tear off the bad bits, and start again
+<span class="lineNum">     211 </span>                :            :                 bad_bits+=i+1;
+<span class="lineNum">     212 </span>                :            :             }
+<span class="lineNum">     213 </span>                :            : 
+<span class="lineNum">     214 </span>                :            :             if(buf.count() &lt; HeaderSize())
+<span class="lineNum">     215 </span>                :            :             {
+<span class="lineNum">     216 </span>                :            :                 return 0; // not enough stuff
+<span class="lineNum">     217 </span>                :            :             }
+<span class="lineNum">     218 </span>                :            : 
+<span class="lineNum">     219 </span>                :            :         } while(!found);
+<span class="lineNum">     220 </span>                :            : 
+<span class="lineNum">     221 </span>                :            :         // if we are here it is a valid Header
+<span class="lineNum">     222 </span>                :            :         validHeader = true;
+<span class="lineNum">     223 </span>                :            : 
+<span class="lineNum">     224 </span>                :            :         int pkt_length = static_cast&lt;uint16_t&gt;((ToByte(buf, POS_LENGTH) &lt;&lt; 8) | ToByte(buf, POS_LENGTH + 8));
+<span class="lineNum">     225 </span>                :            :         uint8_t pkt_crc = ToByte(buf, POS_CRC);
+<span class="lineNum">     226 </span>                :            : 
+<span class="lineNum">     227 </span>                :            :         uint8_t* pkt_data = new uint8_t[pkt_length];
+<span class="lineNum">     228 </span>                :            :         for(int i = 0; i &lt; pkt_length; i++)
+<span class="lineNum">     229 </span>                :            :         {
+<span class="lineNum">     230 </span>                :            :             pkt_data[i] = ToByte(buf,i*8 + POS_DATA);
+<span class="lineNum">     231 </span>                :            :         }
+<span class="lineNum">     232 </span>                :            : 
+<span class="lineNum">     233 </span>                :            :         // check crc if enabled
+<span class="lineNum">     234 </span>                :            :         if(m_crc_enable)
+<span class="lineNum">     235 </span>                :            :         {
+<span class="lineNum">     236 </span>                :            :             if(crcCalculator.getCRC(pkt_data, pkt_length) != pkt_crc)
+<span class="lineNum">     237 </span>                :            :             {
+<span class="lineNum">     238 </span>                :            :                 pkt_length = -m_unique_word_size;  // Remove only the unique word... could have just been a fluke
+<span class="lineNum">     239 </span>                :            :                 bad_bits += m_unique_word_size;
+<span class="lineNum">     240 </span>                :            :             }
+<span class="lineNum">     241 </span>                :            :             else
+<span class="lineNum">     242 </span>                :            :             {
+<span class="lineNum">     243 </span>                :            :                 validCRC = true; // getting here means we got a valid CRC, dont say its good if we dont enable crc check
+<span class="lineNum">     244 </span>                :            :             }
+<span class="lineNum">     245 </span>                :            :         }
+<span class="lineNum">     246 </span>                :            : 
+<span class="lineNum">     247 </span>                :            :         // Clear Pkt Data
+<span class="lineNum">     248 </span>                :            :         memset(&amp;pkt[8], 0, MAX_PACKETFRAMER_PKT_SIZE-8);
+<span class="lineNum">     249 </span>                :            : 
+<span class="lineNum">     250 </span>                :            :         // load returning data message
+<span class="lineNum">     251 </span>                :            :         if((!m_crc_enable || validCRC) &amp;&amp; pkt_length &lt; static_cast&lt;int&gt;(pkt_buffer_size))
+<span class="lineNum">     252 </span>                :            :         {
+<span class="lineNum">     253 </span>                :            :             for (int i = 0; i &lt; pkt_length; i++)
+<span class="lineNum">     254 </span>                :            :             {
+<span class="lineNum">     255 </span>                :            :                 pkt[i] = pkt_data[i];
+<span class="lineNum">     256 </span>                :            :             }
+<span class="lineNum">     257 </span>                :            :             std::cout &lt;&lt; &quot;Pkt Length &quot; &lt;&lt; pkt_length &lt;&lt; std::endl;
+<span class="lineNum">     258 </span>                :            :             validPacket = true;
+<span class="lineNum">     259 </span>                :            :         }
+<span class="lineNum">     260 </span>                :            :         else
+<span class="lineNum">     261 </span>                :            :         {
+<span class="lineNum">     262 </span>                :            :             pkt_length = -m_unique_word_size; // Remove only the unique word... could have just been a fluke
+<span class="lineNum">     263 </span>                :            :             bad_bits+=m_unique_word_size;
+<span class="lineNum">     264 </span>                :            :         }
+<span class="lineNum">     265 </span>                :            : 
+<span class="lineNum">     266 </span>                :            : 
+<span class="lineNum">     267 </span>                :            :         if(!validPacket)
+<span class="lineNum">     268 </span>                :            :         {
+<span class="lineNum">     269 </span>                :            :             buf.remove(abs(pkt_length));
+<span class="lineNum">     270 </span>                :            :         }
+<span class="lineNum">     271 </span>                :            :         else
+<span class="lineNum">     272 </span>                :            :         {
+<span class="lineNum">     273 </span>                :            :             buf.remove(m_unique_word_size + pkt_length*8);
+<span class="lineNum">     274 </span>                :            :         }
+<span class="lineNum">     275 </span>                :            :         delete[] pkt_data;
+<span class="lineNum">     276 </span>                :            :         return pkt_length;
+<a name="277"><span class="lineNum">     277 </span>                :            :     }</a>
+<span class="lineNum">     278 </span>                :            : 
+<span class="lineNum">     279 </span>                :<span class="lineCov">       1120 :     inline uint8_t ToByte(data_type* buffer, size_t index)</span>
+<span class="lineNum">     280 </span>                :            :     {
+<span class="lineNum">     281 </span>                :<span class="lineCov">       1120 :         uint8_t c = 0;</span>
+<span class="lineNum">     282 </span>                :<span class="lineCov">      10080 :         for (size_t i=0; i &lt; 8; ++i)</span>
+<span class="lineNum">     283 </span>                :            :         {
+<span class="lineNum">     284 </span>                :<span class="lineCov">       8960 :             if (buffer[index+i] == 1)</span>
+<span class="lineNum">     285 </span>                :            :             {
+<span class="lineNum">     286 </span>                :<span class="lineCov">       1760 :                 c |= 1 &lt;&lt; (7-i);</span>
+<span class="lineNum">     287 </span>                :<span class="lineCov">       1760 :             }</span>
+<span class="lineNum">     288 </span>                :<span class="lineCov">       8960 :         }</span>
+<span class="lineNum">     289 </span>                :            : 
+<span class="lineNum">     290 </span>                :<span class="lineCov">       1120 :         return c;</span>
+<span class="lineNum">     291 </span>                :            :     }
+<span class="lineNum">     292 </span>                :            : 
+<span class="lineNum">     293 </span>                :            :     inline uint8_t ToByte(RingBuffer&lt;data_type&gt;&amp; buffer, size_t index)
+<span class="lineNum">     294 </span>                :            :     {
+<span class="lineNum">     295 </span>                :            :         uint8_t c = 0;
+<span class="lineNum">     296 </span>                :            :         for (size_t i=0; i &lt; 8; ++i)
+<span class="lineNum">     297 </span>                :            :         {
+<span class="lineNum">     298 </span>                :            :             if (buffer.value(index+i) == 1)
+<span class="lineNum">     299 </span>                :            :             {
+<span class="lineNum">     300 </span>                :            :                 c |= 1 &lt;&lt; (7-i);
+<span class="lineNum">     301 </span>                :            :             }
+<span class="lineNum">     302 </span>                :            :         }
+<span class="lineNum">     303 </span>                :            : 
+<span class="lineNum">     304 </span>                :            :         return c;
+<span class="lineNum">     305 </span>                :            :     }
+<span class="lineNum">     306 </span>                :            : 
+<span class="lineNum">     307 </span>                :<span class="lineCov">        240 :     const uint8_t binary_array[256][8] =</span>
+<span class="lineNum">     308 </span>                :<span class="lineCov">        240 :     {</span>
+<span class="lineNum">     309 </span>                :            :         {0,0,0,0,0,0,0,0},
+<span class="lineNum">     310 </span>                :            :         {0,0,0,0,0,0,0,1},
+<span class="lineNum">     311 </span>                :            :         {0,0,0,0,0,0,1,0},
+<span class="lineNum">     312 </span>                :            :         {0,0,0,0,0,0,1,1},
+<span class="lineNum">     313 </span>                :            :         {0,0,0,0,0,1,0,0},
+<span class="lineNum">     314 </span>                :            :         {0,0,0,0,0,1,0,1},
+<span class="lineNum">     315 </span>                :            :         {0,0,0,0,0,1,1,0},
+<span class="lineNum">     316 </span>                :            :         {0,0,0,0,0,1,1,1},
+<span class="lineNum">     317 </span>                :            :         {0,0,0,0,1,0,0,0},
+<span class="lineNum">     318 </span>                :            :         {0,0,0,0,1,0,0,1},
+<span class="lineNum">     319 </span>                :            :         {0,0,0,0,1,0,1,0},
+<span class="lineNum">     320 </span>                :            :         {0,0,0,0,1,0,1,1},
+<span class="lineNum">     321 </span>                :            :         {0,0,0,0,1,1,0,0},
+<span class="lineNum">     322 </span>                :            :         {0,0,0,0,1,1,0,1},
+<span class="lineNum">     323 </span>                :            :         {0,0,0,0,1,1,1,0},
+<span class="lineNum">     324 </span>                :            :         {0,0,0,0,1,1,1,1},
+<span class="lineNum">     325 </span>                :            :         {0,0,0,1,0,0,0,0},
+<span class="lineNum">     326 </span>                :            :         {0,0,0,1,0,0,0,1},
+<span class="lineNum">     327 </span>                :            :         {0,0,0,1,0,0,1,0},
+<span class="lineNum">     328 </span>                :            :         {0,0,0,1,0,0,1,1},
+<span class="lineNum">     329 </span>                :            :         {0,0,0,1,0,1,0,0},
+<span class="lineNum">     330 </span>                :            :         {0,0,0,1,0,1,0,1},
+<span class="lineNum">     331 </span>                :            :         {0,0,0,1,0,1,1,0},
+<span class="lineNum">     332 </span>                :            :         {0,0,0,1,0,1,1,1},
+<span class="lineNum">     333 </span>                :            :         {0,0,0,1,1,0,0,0},
+<span class="lineNum">     334 </span>                :            :         {0,0,0,1,1,0,0,1},
+<span class="lineNum">     335 </span>                :            :         {0,0,0,1,1,0,1,0},
+<span class="lineNum">     336 </span>                :            :         {0,0,0,1,1,0,1,1},
+<span class="lineNum">     337 </span>                :            :         {0,0,0,1,1,1,0,0},
+<span class="lineNum">     338 </span>                :            :         {0,0,0,1,1,1,0,1},
+<span class="lineNum">     339 </span>                :            :         {0,0,0,1,1,1,1,0},
+<span class="lineNum">     340 </span>                :            :         {0,0,0,1,1,1,1,1},
+<span class="lineNum">     341 </span>                :            :         {0,0,1,0,0,0,0,0},
+<span class="lineNum">     342 </span>                :            :         {0,0,1,0,0,0,0,1},
+<span class="lineNum">     343 </span>                :            :         {0,0,1,0,0,0,1,0},
+<span class="lineNum">     344 </span>                :            :         {0,0,1,0,0,0,1,1},
+<span class="lineNum">     345 </span>                :            :         {0,0,1,0,0,1,0,0},
+<span class="lineNum">     346 </span>                :            :         {0,0,1,0,0,1,0,1},
+<span class="lineNum">     347 </span>                :            :         {0,0,1,0,0,1,1,0},
+<span class="lineNum">     348 </span>                :            :         {0,0,1,0,0,1,1,1},
+<span class="lineNum">     349 </span>                :            :         {0,0,1,0,1,0,0,0},
+<span class="lineNum">     350 </span>                :            :         {0,0,1,0,1,0,0,1},
+<span class="lineNum">     351 </span>                :            :         {0,0,1,0,1,0,1,0},
+<span class="lineNum">     352 </span>                :            :         {0,0,1,0,1,0,1,1},
+<span class="lineNum">     353 </span>                :            :         {0,0,1,0,1,1,0,0},
+<span class="lineNum">     354 </span>                :            :         {0,0,1,0,1,1,0,1},
+<span class="lineNum">     355 </span>                :            :         {0,0,1,0,1,1,1,0},
+<span class="lineNum">     356 </span>                :            :         {0,0,1,0,1,1,1,1},
+<span class="lineNum">     357 </span>                :            :         {0,0,1,1,0,0,0,0},
+<span class="lineNum">     358 </span>                :            :         {0,0,1,1,0,0,0,1},
+<span class="lineNum">     359 </span>                :            :         {0,0,1,1,0,0,1,0},
+<span class="lineNum">     360 </span>                :            :         {0,0,1,1,0,0,1,1},
+<span class="lineNum">     361 </span>                :            :         {0,0,1,1,0,1,0,0},
+<span class="lineNum">     362 </span>                :            :         {0,0,1,1,0,1,0,1},
+<span class="lineNum">     363 </span>                :            :         {0,0,1,1,0,1,1,0},
+<span class="lineNum">     364 </span>                :            :         {0,0,1,1,0,1,1,1},
+<span class="lineNum">     365 </span>                :            :         {0,0,1,1,1,0,0,0},
+<span class="lineNum">     366 </span>                :            :         {0,0,1,1,1,0,0,1},
+<span class="lineNum">     367 </span>                :            :         {0,0,1,1,1,0,1,0},
+<span class="lineNum">     368 </span>                :            :         {0,0,1,1,1,0,1,1},
+<span class="lineNum">     369 </span>                :            :         {0,0,1,1,1,1,0,0},
+<span class="lineNum">     370 </span>                :            :         {0,0,1,1,1,1,0,1},
+<span class="lineNum">     371 </span>                :            :         {0,0,1,1,1,1,1,0},
+<span class="lineNum">     372 </span>                :            :         {0,0,1,1,1,1,1,1},
+<span class="lineNum">     373 </span>                :            :         {0,1,0,0,0,0,0,0},
+<span class="lineNum">     374 </span>                :            :         {0,1,0,0,0,0,0,1},
+<span class="lineNum">     375 </span>                :            :         {0,1,0,0,0,0,1,0},
+<span class="lineNum">     376 </span>                :            :         {0,1,0,0,0,0,1,1},
+<span class="lineNum">     377 </span>                :            :         {0,1,0,0,0,1,0,0},
+<span class="lineNum">     378 </span>                :            :         {0,1,0,0,0,1,0,1},
+<span class="lineNum">     379 </span>                :            :         {0,1,0,0,0,1,1,0},
+<span class="lineNum">     380 </span>                :            :         {0,1,0,0,0,1,1,1},
+<span class="lineNum">     381 </span>                :            :         {0,1,0,0,1,0,0,0},
+<span class="lineNum">     382 </span>                :            :         {0,1,0,0,1,0,0,1},
+<span class="lineNum">     383 </span>                :            :         {0,1,0,0,1,0,1,0},
+<span class="lineNum">     384 </span>                :            :         {0,1,0,0,1,0,1,1},
+<span class="lineNum">     385 </span>                :            :         {0,1,0,0,1,1,0,0},
+<span class="lineNum">     386 </span>                :            :         {0,1,0,0,1,1,0,1},
+<span class="lineNum">     387 </span>                :            :         {0,1,0,0,1,1,1,0},
+<span class="lineNum">     388 </span>                :            :         {0,1,0,0,1,1,1,1},
+<span class="lineNum">     389 </span>                :            :         {0,1,0,1,0,0,0,0},
+<span class="lineNum">     390 </span>                :            :         {0,1,0,1,0,0,0,1},
+<span class="lineNum">     391 </span>                :            :         {0,1,0,1,0,0,1,0},
+<span class="lineNum">     392 </span>                :            :         {0,1,0,1,0,0,1,1},
+<span class="lineNum">     393 </span>                :            :         {0,1,0,1,0,1,0,0},
+<span class="lineNum">     394 </span>                :            :         {0,1,0,1,0,1,0,1},
+<span class="lineNum">     395 </span>                :            :         {0,1,0,1,0,1,1,0},
+<span class="lineNum">     396 </span>                :            :         {0,1,0,1,0,1,1,1},
+<span class="lineNum">     397 </span>                :            :         {0,1,0,1,1,0,0,0},
+<span class="lineNum">     398 </span>                :            :         {0,1,0,1,1,0,0,1},
+<span class="lineNum">     399 </span>                :            :         {0,1,0,1,1,0,1,0},
+<span class="lineNum">     400 </span>                :            :         {0,1,0,1,1,0,1,1},
+<span class="lineNum">     401 </span>                :            :         {0,1,0,1,1,1,0,0},
+<span class="lineNum">     402 </span>                :            :         {0,1,0,1,1,1,0,1},
+<span class="lineNum">     403 </span>                :            :         {0,1,0,1,1,1,1,0},
+<span class="lineNum">     404 </span>                :            :         {0,1,0,1,1,1,1,1},
+<span class="lineNum">     405 </span>                :            :         {0,1,1,0,0,0,0,0},
+<span class="lineNum">     406 </span>                :            :         {0,1,1,0,0,0,0,1},
+<span class="lineNum">     407 </span>                :            :         {0,1,1,0,0,0,1,0},
+<span class="lineNum">     408 </span>                :            :         {0,1,1,0,0,0,1,1},
+<span class="lineNum">     409 </span>                :            :         {0,1,1,0,0,1,0,0},
+<span class="lineNum">     410 </span>                :            :         {0,1,1,0,0,1,0,1},
+<span class="lineNum">     411 </span>                :            :         {0,1,1,0,0,1,1,0},
+<span class="lineNum">     412 </span>                :            :         {0,1,1,0,0,1,1,1},
+<span class="lineNum">     413 </span>                :            :         {0,1,1,0,1,0,0,0},
+<span class="lineNum">     414 </span>                :            :         {0,1,1,0,1,0,0,1},
+<span class="lineNum">     415 </span>                :            :         {0,1,1,0,1,0,1,0},
+<span class="lineNum">     416 </span>                :            :         {0,1,1,0,1,0,1,1},
+<span class="lineNum">     417 </span>                :            :         {0,1,1,0,1,1,0,0},
+<span class="lineNum">     418 </span>                :            :         {0,1,1,0,1,1,0,1},
+<span class="lineNum">     419 </span>                :            :         {0,1,1,0,1,1,1,0},
+<span class="lineNum">     420 </span>                :            :         {0,1,1,0,1,1,1,1},
+<span class="lineNum">     421 </span>                :            :         {0,1,1,1,0,0,0,0},
+<span class="lineNum">     422 </span>                :            :         {0,1,1,1,0,0,0,1},
+<span class="lineNum">     423 </span>                :            :         {0,1,1,1,0,0,1,0},
+<span class="lineNum">     424 </span>                :            :         {0,1,1,1,0,0,1,1},
+<span class="lineNum">     425 </span>                :            :         {0,1,1,1,0,1,0,0},
+<span class="lineNum">     426 </span>                :            :         {0,1,1,1,0,1,0,1},
+<span class="lineNum">     427 </span>                :            :         {0,1,1,1,0,1,1,0},
+<span class="lineNum">     428 </span>                :            :         {0,1,1,1,0,1,1,1},
+<span class="lineNum">     429 </span>                :            :         {0,1,1,1,1,0,0,0},
+<span class="lineNum">     430 </span>                :            :         {0,1,1,1,1,0,0,1},
+<span class="lineNum">     431 </span>                :            :         {0,1,1,1,1,0,1,0},
+<span class="lineNum">     432 </span>                :            :         {0,1,1,1,1,0,1,1},
+<span class="lineNum">     433 </span>                :            :         {0,1,1,1,1,1,0,0},
+<span class="lineNum">     434 </span>                :            :         {0,1,1,1,1,1,0,1},
+<span class="lineNum">     435 </span>                :            :         {0,1,1,1,1,1,1,0},
+<span class="lineNum">     436 </span>                :            :         {0,1,1,1,1,1,1,1},
+<span class="lineNum">     437 </span>                :            :         {1,0,0,0,0,0,0,0},
+<span class="lineNum">     438 </span>                :            :         {1,0,0,0,0,0,0,1},
+<span class="lineNum">     439 </span>                :            :         {1,0,0,0,0,0,1,0},
+<span class="lineNum">     440 </span>                :            :         {1,0,0,0,0,0,1,1},
+<span class="lineNum">     441 </span>                :            :         {1,0,0,0,0,1,0,0},
+<span class="lineNum">     442 </span>                :            :         {1,0,0,0,0,1,0,1},
+<span class="lineNum">     443 </span>                :            :         {1,0,0,0,0,1,1,0},
+<span class="lineNum">     444 </span>                :            :         {1,0,0,0,0,1,1,1},
+<span class="lineNum">     445 </span>                :            :         {1,0,0,0,1,0,0,0},
+<span class="lineNum">     446 </span>                :            :         {1,0,0,0,1,0,0,1},
+<span class="lineNum">     447 </span>                :            :         {1,0,0,0,1,0,1,0},
+<span class="lineNum">     448 </span>                :            :         {1,0,0,0,1,0,1,1},
+<span class="lineNum">     449 </span>                :            :         {1,0,0,0,1,1,0,0},
+<span class="lineNum">     450 </span>                :            :         {1,0,0,0,1,1,0,1},
+<span class="lineNum">     451 </span>                :            :         {1,0,0,0,1,1,1,0},
+<span class="lineNum">     452 </span>                :            :         {1,0,0,0,1,1,1,1},
+<span class="lineNum">     453 </span>                :            :         {1,0,0,1,0,0,0,0},
+<span class="lineNum">     454 </span>                :            :         {1,0,0,1,0,0,0,1},
+<span class="lineNum">     455 </span>                :            :         {1,0,0,1,0,0,1,0},
+<span class="lineNum">     456 </span>                :            :         {1,0,0,1,0,0,1,1},
+<span class="lineNum">     457 </span>                :            :         {1,0,0,1,0,1,0,0},
+<span class="lineNum">     458 </span>                :            :         {1,0,0,1,0,1,0,1},
+<span class="lineNum">     459 </span>                :            :         {1,0,0,1,0,1,1,0},
+<span class="lineNum">     460 </span>                :            :         {1,0,0,1,0,1,1,1},
+<span class="lineNum">     461 </span>                :            :         {1,0,0,1,1,0,0,0},
+<span class="lineNum">     462 </span>                :            :         {1,0,0,1,1,0,0,1},
+<span class="lineNum">     463 </span>                :            :         {1,0,0,1,1,0,1,0},
+<span class="lineNum">     464 </span>                :            :         {1,0,0,1,1,0,1,1},
+<span class="lineNum">     465 </span>                :            :         {1,0,0,1,1,1,0,0},
+<span class="lineNum">     466 </span>                :            :         {1,0,0,1,1,1,0,1},
+<span class="lineNum">     467 </span>                :            :         {1,0,0,1,1,1,1,0},
+<span class="lineNum">     468 </span>                :            :         {1,0,0,1,1,1,1,1},
+<span class="lineNum">     469 </span>                :            :         {1,0,1,0,0,0,0,0},
+<span class="lineNum">     470 </span>                :            :         {1,0,1,0,0,0,0,1},
+<span class="lineNum">     471 </span>                :            :         {1,0,1,0,0,0,1,0},
+<span class="lineNum">     472 </span>                :            :         {1,0,1,0,0,0,1,1},
+<span class="lineNum">     473 </span>                :            :         {1,0,1,0,0,1,0,0},
+<span class="lineNum">     474 </span>                :            :         {1,0,1,0,0,1,0,1},
+<span class="lineNum">     475 </span>                :            :         {1,0,1,0,0,1,1,0},
+<span class="lineNum">     476 </span>                :            :         {1,0,1,0,0,1,1,1},
+<span class="lineNum">     477 </span>                :            :         {1,0,1,0,1,0,0,0},
+<span class="lineNum">     478 </span>                :            :         {1,0,1,0,1,0,0,1},
+<span class="lineNum">     479 </span>                :            :         {1,0,1,0,1,0,1,0},
+<span class="lineNum">     480 </span>                :            :         {1,0,1,0,1,0,1,1},
+<span class="lineNum">     481 </span>                :            :         {1,0,1,0,1,1,0,0},
+<span class="lineNum">     482 </span>                :            :         {1,0,1,0,1,1,0,1},
+<span class="lineNum">     483 </span>                :            :         {1,0,1,0,1,1,1,0},
+<span class="lineNum">     484 </span>                :            :         {1,0,1,0,1,1,1,1},
+<span class="lineNum">     485 </span>                :            :         {1,0,1,1,0,0,0,0},
+<span class="lineNum">     486 </span>                :            :         {1,0,1,1,0,0,0,1},
+<span class="lineNum">     487 </span>                :            :         {1,0,1,1,0,0,1,0},
+<span class="lineNum">     488 </span>                :            :         {1,0,1,1,0,0,1,1},
+<span class="lineNum">     489 </span>                :            :         {1,0,1,1,0,1,0,0},
+<span class="lineNum">     490 </span>                :            :         {1,0,1,1,0,1,0,1},
+<span class="lineNum">     491 </span>                :            :         {1,0,1,1,0,1,1,0},
+<span class="lineNum">     492 </span>                :            :         {1,0,1,1,0,1,1,1},
+<span class="lineNum">     493 </span>                :            :         {1,0,1,1,1,0,0,0},
+<span class="lineNum">     494 </span>                :            :         {1,0,1,1,1,0,0,1},
+<span class="lineNum">     495 </span>                :            :         {1,0,1,1,1,0,1,0},
+<span class="lineNum">     496 </span>                :            :         {1,0,1,1,1,0,1,1},
+<span class="lineNum">     497 </span>                :            :         {1,0,1,1,1,1,0,0},
+<span class="lineNum">     498 </span>                :            :         {1,0,1,1,1,1,0,1},
+<span class="lineNum">     499 </span>                :            :         {1,0,1,1,1,1,1,0},
+<span class="lineNum">     500 </span>                :            :         {1,0,1,1,1,1,1,1},
+<span class="lineNum">     501 </span>                :            :         {1,1,0,0,0,0,0,0},
+<span class="lineNum">     502 </span>                :            :         {1,1,0,0,0,0,0,1},
+<span class="lineNum">     503 </span>                :            :         {1,1,0,0,0,0,1,0},
+<span class="lineNum">     504 </span>                :            :         {1,1,0,0,0,0,1,1},
+<span class="lineNum">     505 </span>                :            :         {1,1,0,0,0,1,0,0},
+<span class="lineNum">     506 </span>                :            :         {1,1,0,0,0,1,0,1},
+<span class="lineNum">     507 </span>                :            :         {1,1,0,0,0,1,1,0},
+<span class="lineNum">     508 </span>                :            :         {1,1,0,0,0,1,1,1},
+<span class="lineNum">     509 </span>                :            :         {1,1,0,0,1,0,0,0},
+<span class="lineNum">     510 </span>                :            :         {1,1,0,0,1,0,0,1},
+<span class="lineNum">     511 </span>                :            :         {1,1,0,0,1,0,1,0},
+<span class="lineNum">     512 </span>                :            :         {1,1,0,0,1,0,1,1},
+<span class="lineNum">     513 </span>                :            :         {1,1,0,0,1,1,0,0},
+<span class="lineNum">     514 </span>                :            :         {1,1,0,0,1,1,0,1},
+<span class="lineNum">     515 </span>                :            :         {1,1,0,0,1,1,1,0},
+<span class="lineNum">     516 </span>                :            :         {1,1,0,0,1,1,1,1},
+<span class="lineNum">     517 </span>                :            :         {1,1,0,1,0,0,0,0},
+<span class="lineNum">     518 </span>                :            :         {1,1,0,1,0,0,0,1},
+<span class="lineNum">     519 </span>                :            :         {1,1,0,1,0,0,1,0},
+<span class="lineNum">     520 </span>                :            :         {1,1,0,1,0,0,1,1},
+<span class="lineNum">     521 </span>                :            :         {1,1,0,1,0,1,0,0},
+<span class="lineNum">     522 </span>                :            :         {1,1,0,1,0,1,0,1},
+<span class="lineNum">     523 </span>                :            :         {1,1,0,1,0,1,1,0},
+<span class="lineNum">     524 </span>                :            :         {1,1,0,1,0,1,1,1},
+<span class="lineNum">     525 </span>                :            :         {1,1,0,1,1,0,0,0},
+<span class="lineNum">     526 </span>                :            :         {1,1,0,1,1,0,0,1},
+<span class="lineNum">     527 </span>                :            :         {1,1,0,1,1,0,1,0},
+<span class="lineNum">     528 </span>                :            :         {1,1,0,1,1,0,1,1},
+<span class="lineNum">     529 </span>                :            :         {1,1,0,1,1,1,0,0},
+<span class="lineNum">     530 </span>                :            :         {1,1,0,1,1,1,0,1},
+<span class="lineNum">     531 </span>                :            :         {1,1,0,1,1,1,1,0},
+<span class="lineNum">     532 </span>                :            :         {1,1,0,1,1,1,1,1},
+<span class="lineNum">     533 </span>                :            :         {1,1,1,0,0,0,0,0},
+<span class="lineNum">     534 </span>                :            :         {1,1,1,0,0,0,0,1},
+<span class="lineNum">     535 </span>                :            :         {1,1,1,0,0,0,1,0},
+<span class="lineNum">     536 </span>                :            :         {1,1,1,0,0,0,1,1},
+<span class="lineNum">     537 </span>                :            :         {1,1,1,0,0,1,0,0},
+<span class="lineNum">     538 </span>                :            :         {1,1,1,0,0,1,0,1},
+<span class="lineNum">     539 </span>                :            :         {1,1,1,0,0,1,1,0},
+<span class="lineNum">     540 </span>                :            :         {1,1,1,0,0,1,1,1},
+<span class="lineNum">     541 </span>                :            :         {1,1,1,0,1,0,0,0},
+<span class="lineNum">     542 </span>                :            :         {1,1,1,0,1,0,0,1},
+<span class="lineNum">     543 </span>                :            :         {1,1,1,0,1,0,1,0},
+<span class="lineNum">     544 </span>                :            :         {1,1,1,0,1,0,1,1},
+<span class="lineNum">     545 </span>                :            :         {1,1,1,0,1,1,0,0},
+<span class="lineNum">     546 </span>                :            :         {1,1,1,0,1,1,0,1},
+<span class="lineNum">     547 </span>                :            :         {1,1,1,0,1,1,1,0},
+<span class="lineNum">     548 </span>                :            :         {1,1,1,0,1,1,1,1},
+<span class="lineNum">     549 </span>                :            :         {1,1,1,1,0,0,0,0},
+<span class="lineNum">     550 </span>                :            :         {1,1,1,1,0,0,0,1},
+<span class="lineNum">     551 </span>                :            :         {1,1,1,1,0,0,1,0},
+<span class="lineNum">     552 </span>                :            :         {1,1,1,1,0,0,1,1},
+<span class="lineNum">     553 </span>                :            :         {1,1,1,1,0,1,0,0},
+<span class="lineNum">     554 </span>                :            :         {1,1,1,1,0,1,0,1},
+<span class="lineNum">     555 </span>                :            :         {1,1,1,1,0,1,1,0},
+<span class="lineNum">     556 </span>                :            :         {1,1,1,1,0,1,1,1},
+<span class="lineNum">     557 </span>                :            :         {1,1,1,1,1,0,0,0},
+<span class="lineNum">     558 </span>                :            :         {1,1,1,1,1,0,0,1},
+<span class="lineNum">     559 </span>                :            :         {1,1,1,1,1,0,1,0},
+<span class="lineNum">     560 </span>                :            :         {1,1,1,1,1,0,1,1},
+<span class="lineNum">     561 </span>                :            :         {1,1,1,1,1,1,0,0},
+<span class="lineNum">     562 </span>                :            :         {1,1,1,1,1,1,0,1},
+<span class="lineNum">     563 </span>                :            :         {1,1,1,1,1,1,1,0},
+<span class="lineNum">     564 </span>                :            :         {1,1,1,1,1,1,1,1}
+<span class="lineNum">     565 </span>                :            :     };
+<span class="lineNum">     566 </span>                :            : 
+<span class="lineNum">     567 </span>                :            : private:
+<span class="lineNum">     568 </span>                :            :     std::string m_name;
+<span class="lineNum">     569 </span>                :            :     std::string m_address;
+<span class="lineNum">     570 </span>                :            :     std::string m_port_rx;
+<span class="lineNum">     571 </span>                :            :     std::string m_port_tx;
+<span class="lineNum">     572 </span>                :            :     data_type m_unique_word[64];
+<span class="lineNum">     573 </span>                :            :     size_t m_unique_word_size;
+<span class="lineNum">     574 </span>                :            :     bool m_crc_enable;
+<span class="lineNum">     575 </span>                :            :     data_type* m_pkt;
+<span class="lineNum">     576 </span>                :            :     size_t POS_UNIQUE_WORD;
+<span class="lineNum">     577 </span>                :            :     size_t POS_LENGTH;
+<span class="lineNum">     578 </span>                :            :     size_t POS_CRC;
+<span class="lineNum">     579 </span>                :            :     size_t POS_DATA;
+<span class="lineNum">     580 </span>                :            :     crc8 crcCalculator;
+<span class="lineNum">     581 </span>                :            : };
+<span class="lineNum">     582 </span>                :            : 
+<span class="lineNum">     583 </span>                :            : 
+<span class="lineNum">     584 </span>                :            : 
+<span class="lineNum">     585 </span>                :            : 
+<span class="lineNum">     586 </span>                :            : #endif //RADIONODE_PACKETFRAMER_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

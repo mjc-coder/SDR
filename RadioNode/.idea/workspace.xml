@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="SCOPE_TYPE" value="8" />
+    <option name="CUSTOM_SCOPE_NAME" value="RadioNode" />
+  </component>
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
+    <generated>
+      <config projectName="Project" targetName="Radio_Unit_Tests" />
+    </generated>
+  </component>
+  <component name="CMakeSettings" AUTO_RELOAD="true">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="f5767b57-d2bd-45de-9b8f-534972f64ccd" name="Default Changelist" comment="" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="CMakeLists.txt" />
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/third-party/hackrf/hackrf" />
+  </component>
+  <component name="NamedScopeManager">
+    <scope name="RadioNode" pattern="file:baseband_stream.cpp||file:baseband_stream.h||file:DigitalSignalProcessing.cpp||file:DigitalSignalProcessing.h||file:main.cpp||file:Messages.h||file:qcustomplot.cpp||file:qcustomplot.h||file:rtlsdr_radio.cpp||file:rtlsdr_radio.h||file:UDP_Blaster.cpp||file:UDP_Blaster.h||file[RadioNode]:src/test/*" />
+  </component>
+  <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
+  <component name="ProjectId" id="1Oi6WmBhtBzm2SB1NSSFCYcuyHn" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="PropertiesComponent">
+    <property name="TODO_SCOPE" value="All Places" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="cf.advertisement.text.has.clang-format" value="true" />
+    <property name="com.intellij.ide.scratch.LRUPopupBuilder$1/New Scratch File" value="ObjectiveC" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/libraries/streams" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="restartRequiresConfirmation" value="false" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/libraries/streams" />
+      <recent name="$PROJECT_DIR$/src/test" />
+      <recent name="$PROJECT_DIR$/third-party/RTLSDR" />
+      <recent name="$PROJECT_DIR$/third-party/hackrf/hackrf" />
+      <recent name="$PROJECT_DIR$/third-party/FIR-filter-class" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/third-party/hackrf" />
+      <recent name="$PROJECT_DIR$/src" />
+      <recent name="$PROJECT_DIR$/third-party" />
+      <recent name="$PROJECT_DIR$/cmake-build-debug" />
+      <recent name="$PROJECT_DIR$/src/libraries/common" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Google Test.Radio_Unit_Tests">
+    <configuration name="FM.ModDemodResampled" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="Radio_Unit_Tests" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="Radio_Unit_Tests" TEST_CLASS="FM" TEST_METHOD="ModDemodResampled" TEST_MODE="SUITE_TEST">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="BeforeTestRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="FM.ModDemodResampledHigherFreq" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="Radio_Unit_Tests" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="Radio_Unit_Tests" TEST_CLASS="FM" TEST_METHOD="ModDemodResampledHigherFreq" TEST_MODE="SUITE_TEST">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="BeforeTestRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PacketFramer.DeserializerBitByBit" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="Radio_Unit_Tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="Radio_Unit_Tests" TEST_CLASS="PacketFramer" TEST_METHOD="DeserializerBitByBit" TEST_MODE="SUITE_TEST">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="BeforeTestRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PacketFramer.FramedMessage" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="Radio_Unit_Tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="Radio_Unit_Tests" TEST_CLASS="PacketFramer" TEST_METHOD="FramedMessage" TEST_MODE="SUITE_TEST">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="BeforeTestRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PacketFramer.GoodDeframedPacket" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="Radio_Unit_Tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="Radio_Unit_Tests" TEST_CLASS="PacketFramer" TEST_METHOD="GoodDeframedPacket" TEST_MODE="SUITE_TEST">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="BeforeTestRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Radio_Unit_Tests" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="Radio_Unit_Tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="Radio_Unit_Tests" TEST_MODE="SUITE_TEST">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="BeforeTestRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Radio_Unit_Tests" type="CMakeRunConfiguration" factoryName="Application" nameIsGenerated="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="Radio_Unit_Tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="Radio_Unit_Tests">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="CMake Application.Radio_Unit_Tests" />
+      <item itemvalue="Google Test.Radio_Unit_Tests" />
+      <item itemvalue="Google Test.PacketFramer.DeserializerBitByBit" />
+      <item itemvalue="Google Test.PacketFramer.FramedMessage" />
+      <item itemvalue="Google Test.PacketFramer.GoodDeframedPacket" />
+      <item itemvalue="Google Test.FM.ModDemodResampled" />
+      <item itemvalue="Google Test.FM.ModDemodResampledHigherFreq" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Google Test.FM.ModDemodResampledHigherFreq" />
+        <item itemvalue="Google Test.FM.ModDemodResampled" />
+        <item itemvalue="Google Test.PacketFramer.GoodDeframedPacket" />
+        <item itemvalue="Google Test.PacketFramer.FramedMessage" />
+        <item itemvalue="Google Test.PacketFramer.DeserializerBitByBit" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f5767b57-d2bd-45de-9b8f-534972f64ccd" name="Default Changelist" comment="" />
+      <created>1562463590460</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1562463590460</updated>
+      <workItem from="1562463592823" duration="17877000" />
+      <workItem from="1562633564880" duration="2069000" />
+      <workItem from="1562683305143" duration="4915000" />
+      <workItem from="1562806907745" duration="18059000" />
+      <workItem from="1563048537522" duration="8190000" />
+      <workItem from="1563119401347" duration="9335000" />
+      <workItem from="1563134040521" duration="60346000" />
+      <workItem from="1563749094433" duration="15229000" />
+      <workItem from="1563928713716" duration="6261000" />
+      <workItem from="1564073090394" duration="64722000" />
+      <workItem from="1564283688264" duration="7310000" />
+      <workItem from="1564447870292" duration="63000" />
+      <workItem from="1564448108526" duration="221000" />
+      <workItem from="1564448341056" duration="31661000" />
+      <workItem from="1564757131095" duration="104600000" />
+      <workItem from="1565222426318" duration="944000" />
+      <workItem from="1565311685606" duration="1093000" />
+      <workItem from="1565312878501" duration="419000" />
+      <workItem from="1565364876741" duration="24778000" />
+      <workItem from="1565401938170" duration="2302000" />
+      <workItem from="1565445904145" duration="50273000" />
+      <workItem from="1565976899598" duration="8846000" />
+      <workItem from="1566008157979" duration="790000" />
+      <workItem from="1566048142260" duration="20114000" />
+      <workItem from="1566089306227" duration="1787000" />
+      <workItem from="1566170685116" duration="4938000" />
+      <workItem from="1566266457812" duration="17505000" />
+      <workItem from="1566616409303" duration="1558000" />
+      <workItem from="1566685755341" duration="48507000" />
+      <workItem from="1567127170444" duration="17033000" />
+      <workItem from="1567717905606" duration="13120000" />
+      <workItem from="1567809106244" duration="54564000" />
+      <workItem from="1567992583681" duration="2381000" />
+      <workItem from="1568385899123" duration="7522000" />
+      <workItem from="1568397460596" duration="12515000" />
+      <workItem from="1568494223005" duration="37155000" />
+      <workItem from="1568727719247" duration="253000" />
+      <workItem from="1568835465749" duration="21934000" />
+      <workItem from="1569206231787" duration="78950000" />
+      <workItem from="1569509233615" duration="26548000" />
+      <workItem from="1569542304161" duration="18048000" />
+      <workItem from="1569600027222" duration="36027000" />
+      <workItem from="1569776841132" duration="2070000" />
+      <workItem from="1569806589974" duration="671000" />
+      <workItem from="1569880809222" duration="1370000" />
+      <workItem from="1570058257726" duration="414000" />
+      <workItem from="1570143180648" duration="127000" />
+      <workItem from="1570393004142" duration="713000" />
+      <workItem from="1570411404566" duration="3872000" />
+      <workItem from="1570545138217" duration="305000" />
+      <workItem from="1570731280286" duration="7334000" />
+      <workItem from="1570989889427" duration="1106000" />
+      <workItem from="1571081510704" duration="2885000" />
+      <workItem from="1571108618431" duration="888000" />
+      <workItem from="1571327047511" duration="5276000" />
+      <workItem from="1571527949825" duration="3959000" />
+      <workItem from="1571548510109" duration="1009000" />
+      <workItem from="1571550310533" duration="630000" />
+      <workItem from="1571582364495" duration="10956000" />
+      <workItem from="1571596621173" duration="14250000" />
+      <workItem from="1571631888278" duration="15000" />
+      <workItem from="1571663340274" duration="20527000" />
+      <workItem from="1572030255765" duration="3812000" />
+      <workItem from="1572385663908" duration="607000" />
+      <workItem from="1572986981779" duration="211000" />
+      <workItem from="1572987339419" duration="30000" />
+      <workItem from="1572987500193" duration="3654000" />
+      <workItem from="1572992685529" duration="100000" />
+      <workItem from="1572992815371" duration="747000" />
+      <workItem from="1572993843595" duration="14028000" />
+      <workItem from="1573071966335" duration="74000" />
+      <workItem from="1573090798221" duration="3240000" />
+      <workItem from="1573500132345" duration="1222000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/third-party/RTLSDR/rtl_fm.c</url>
+          <line>1253</line>
+          <option name="timeStamp" value="23" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/third-party/RTLSDR/rtl_fm.c</url>
+          <line>759</line>
+          <option name="timeStamp" value="108" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/third-party/RTLSDR/rtl_fm.c</url>
+          <line>781</line>
+          <option name="timeStamp" value="120" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

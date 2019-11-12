@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - My Program Test Coverage - libraries/crc/crc8.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">libraries/crc</a> - crc8.cpp<span style="font-size: 80%;"> (source / <a href="crc8.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">My Program Test Coverage</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-10-20 11:47:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Legend:</td>
+            <td class="headerValueLeg">            Lines:
+            <span class="coverLegendCov">hit</span>
+            <span class="coverLegendNoCov">not hit</span>
+            | Branches:
+            <span class="coverLegendCov">+</span> taken
+            <span class="coverLegendNoCov">-</span> not taken
+            <span class="coverLegendNoCov">#</span> not executed
+</td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : //</a>
+<span class="lineNum">       2 </span>                :            : // Created by Micheal Cowan on 9/14/19.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : 
+<span class="lineNum">       5 </span>                :            : #include &lt;crc/crc8.h&gt;
+<a name="6"><span class="lineNum">       6 </span>                :            : </a>
+<span class="lineNum">       7 </span>                :            : 
+<span class="lineNum">       8 </span>                :<span class="lineCov">         70 : crc8::crc8()</span>
+<span class="lineNum">       9 </span>                :<span class="lineCov">         35 : {</span>
+<span class="lineNum">      10 </span>                :            :     // fill an array with CRC values of all 256 possible bytes
+<span class="lineNum">      11 </span>                :<span class="lineCov">       8995 :     for (size_t i = 0; i &lt; 256; i++)</span>
+<span class="lineNum">      12 </span>                :            :     {
+<span class="lineNum">      13 </span>                :<span class="lineCov">       8960 :         CRCTable[i] = getCRCForByte(i);</span>
+<span class="lineNum">      14 </span>                :<span class="lineCov">       8960 :     }</span>
+<a name="15"><span class="lineNum">      15 </span>                :<span class="lineCov">         70 : }</span></a>
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :<span class="lineCov">         70 : crc8::~crc8()</span>
+<span class="lineNum">      18 </span>                :<span class="lineCov">         35 : {</span>
+<span class="lineNum">      19 </span>                :            : 
+<a name="20"><span class="lineNum">      20 </span>                :<span class="lineCov">         70 : }</span></a>
+<span class="lineNum">      21 </span>                :            : 
+<span class="lineNum">      22 </span>                :<span class="lineCov">       8960 : uint8_t crc8::getCRCForByte(uint8_t val)</span>
+<span class="lineNum">      23 </span>                :            : {
+<span class="lineNum">      24 </span>                :<span class="lineCov">      80675 :     for (size_t j = 0; j &lt; 8; j++)</span>
+<span class="lineNum">      25 </span>                :            :     {
+<span class="lineNum">      26 </span>                :<span class="lineCov">      71680 :         if (val &amp; 1)</span>
+<span class="lineNum">      27 </span>                :<span class="lineCov">      35840 :             val ^= CRC7_POLY;</span>
+<span class="lineNum">      28 </span>                :<span class="lineCov">      71680 :         val &gt;&gt;= 1;</span>
+<span class="lineNum">      29 </span>                :<span class="lineCov">      71680 :     }</span>
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :<span class="lineCov">       8960 :     return val;</span>
+<span class="lineNum">      32 </span>                :            : }
+<span class="lineNum">      33 </span>                :            : 
+<a name="34"><span class="lineNum">      34 </span>                :            : </a>
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :<span class="lineCov">         25 : uint8_t crc8::getCRC(uint8_t message[], size_t length)</span>
+<span class="lineNum">      37 </span>                :            : {
+<span class="lineNum">      38 </span>                :<span class="lineCov">         25 :     uint8_t crc = 0;</span>
+<span class="lineNum">      39 </span>                :            : 
+<span class="lineNum">      40 </span>                :<span class="lineCov">        115 :     for (size_t i = 0; i &lt; length; i++)</span>
+<span class="lineNum">      41 </span>                :            :     {
+<span class="lineNum">      42 </span>                :<span class="lineCov">         90 :         crc = CRCTable[crc ^ message[i]];</span>
+<span class="lineNum">      43 </span>                :<span class="lineCov">         90 :     }</span>
+<span class="lineNum">      44 </span>                :<span class="lineCov">         25 :     return crc;</span>
+<span class="lineNum">      45 </span>                :            : }
+<span class="lineNum">      46 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

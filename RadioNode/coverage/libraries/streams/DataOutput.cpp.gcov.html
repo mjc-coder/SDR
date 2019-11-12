@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - My Program Test Coverage - libraries/streams/DataOutput.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">libraries/streams</a> - DataOutput.cpp<span style="font-size: 80%;"> (source / <a href="DataOutput.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">My Program Test Coverage</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2019-10-20 11:47:15</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Legend:</td>
+            <td class="headerValueLeg">            Lines:
+            <span class="coverLegendCov">hit</span>
+            <span class="coverLegendNoCov">not hit</span>
+            | Branches:
+            <span class="coverLegendCov">+</span> taken
+            <span class="coverLegendNoCov">-</span> not taken
+            <span class="coverLegendNoCov">#</span> not executed
+</td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : //</a>
+<span class="lineNum">       2 </span>                :            : // Created by Micheal Cowan on 2019-08-02.
+<span class="lineNum">       3 </span>                :            : //
+<span class="lineNum">       4 </span>                :            : 
+<span class="lineNum">       5 </span>                :            : #include &lt;streams/DataOutput.h&gt;
+<span class="lineNum">       6 </span>                :            : #include &lt;network/UDP_Blaster.h&gt;
+<span class="lineNum">       7 </span>                :            : #include &lt;DigitalSignalProcessing/Resample.h&gt;
+<a name="8"><span class="lineNum">       8 </span>                :            : #include &lt;DigitalSignalProcessing/FFT.h&gt;</a>
+<span class="lineNum">       9 </span>                :            : 
+<span class="lineNum">      10 </span>                :<span class="lineNoCov">          0 : DataOutput::DataOutput(SafeBufferPoolQueue* BBP_Buffer_Pool,</span>
+<span class="lineNum">      11 </span>                :            :                        std::string name,
+<span class="lineNum">      12 </span>                :            :                        std::string address,
+<span class="lineNum">      13 </span>                :            :                        std::string m_td_port,
+<a name="14"><span class="lineNum">      14 </span>                :            :                        std::string m_fd_port,</a>
+<span class="lineNum">      15 </span>                :            :                        size_t array_size)
+<span class="lineNum">      16 </span>                :<span class="lineNoCov">          0 : : Baseband_Stream([this](BBP_Block* block)</span>
+<span class="lineNum">      17 </span>                :            :                     {
+<span class="lineNum">      18 </span>                :            :                         // order matters here
+<span class="lineNum">      19 </span>                :<span class="lineNoCov">          0 :                         write_to_file(block);</span>
+<span class="lineNum">      20 </span>                :            :                         // decimates 32000 by 16
+<span class="lineNum">      21 </span>                :<span class="lineNoCov">          0 :                         publish_TD(block);</span>
+<span class="lineNum">      22 </span>                :            :                         // already decimated
+<span class="lineNum">      23 </span>                :<span class="lineNoCov">          0 :                         publish_FD(block);</span>
+<span class="lineNum">      24 </span>                :<span class="lineNoCov">          0 :                         return 0;</span>
+<span class="lineNum">      25 </span>                :            :                     },
+<span class="lineNum">      26 </span>                :<span class="lineNoCov">          0 :                     BBP_Buffer_Pool)</span>
+<span class="lineNum">      27 </span>                :<span class="lineNoCov">          0 : , m_file(std::string(name + &quot;.pcm&quot;), std::ios::binary | std::ios::trunc | std::ios::out)</span>
+<span class="lineNum">      28 </span>                :<span class="lineNoCov">          0 : , m_TD_Blaster(std::string(name + &quot;_TD_Blaster&quot;), address, m_td_port, &quot;0&quot;)</span>
+<span class="lineNum">      29 </span>                :<span class="lineNoCov">          0 : , m_FD_Blaster(std::string(name + &quot;_FD_Blaster&quot;), address, m_fd_port, &quot;0&quot;)</span>
+<span class="lineNum">      30 </span>                :<span class="lineNoCov">          0 : , p_real_array(new RADIO_DATA_TYPE[array_size])</span>
+<span class="lineNum">      31 </span>                :<span class="lineNoCov">          0 : , m_array_size(array_size)</span>
+<span class="lineNum">      32 </span>                :<span class="lineNoCov">          0 : {</span>
+<a name="33"><span class="lineNum">      33 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :<span class="lineNoCov">          0 : DataOutput::~DataOutput()</span>
+<span class="lineNum">      36 </span>                :<span class="lineNoCov">          0 : {</span>
+<span class="lineNum">      37 </span>                :<span class="lineNoCov">          0 :     delete[] p_real_array;</span>
+<a name="38"><span class="lineNum">      38 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      39 </span>                :            : 
+<span class="lineNum">      40 </span>                :<span class="lineNoCov">          0 : void DataOutput::write_to_file(BBP_Block* block)</span>
+<span class="lineNum">      41 </span>                :            : {
+<span class="lineNum">      42 </span>                :<span class="lineNoCov">          0 :     block_to_arrays(block);</span>
+<span class="lineNum">      43 </span>                :            :     // Write full array_size 32000 samples / second to file
+<span class="lineNum">      44 </span>                :<span class="lineNoCov">          0 :     m_file.write(reinterpret_cast&lt;const char*&gt;(&amp;p_real_array[1]), (sizeof(RADIO_DATA_TYPE) * (m_array_size-2)));</span>
+<a name="45"><span class="lineNum">      45 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>                :<span class="lineNoCov">          0 : void DataOutput::publish_TD(BBP_Block* block)</span>
+<span class="lineNum">      48 </span>                :            : {
+<span class="lineNum">      49 </span>                :            :     // Decimate 16000 down to a sendable amount
+<span class="lineNum">      50 </span>                :<span class="lineNoCov">          0 :     decimate(block, 32);</span>
+<span class="lineNum">      51 </span>                :<span class="lineNoCov">          0 :     m_TD_Blaster.send((const char*)&amp;block-&gt;points[0], block-&gt;n_points*sizeof(Complex));</span>
+<a name="52"><span class="lineNum">      52 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      53 </span>                :            : 
+<span class="lineNum">      54 </span>                :<span class="lineNoCov">          0 : void DataOutput::publish_FD(BBP_Block* block)</span>
+<span class="lineNum">      55 </span>                :            : {
+<span class="lineNum">      56 </span>                :            :     // Generate FFT
+<span class="lineNum">      57 </span>                :<span class="lineNoCov">          0 :     fft(block-&gt;points, block-&gt;number_of_points()); // Block has already been decimated by previous call</span>
+<span class="lineNum">      58 </span>                :<span class="lineNoCov">          0 :     block_to_arrays(block);</span>
+<span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 :     m_FD_Blaster.send((const char*)p_real_array, block-&gt;n_points*sizeof(RADIO_DATA_TYPE));</span>
+<a name="60"><span class="lineNum">      60 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :<span class="lineNoCov">          0 : void DataOutput::block_to_arrays(BBP_Block* block)</span>
+<span class="lineNum">      63 </span>                :            : {
+<span class="lineNum">      64 </span>                :<span class="lineNoCov">          0 :     memset(p_real_array, 0, m_array_size*sizeof(RADIO_DATA_TYPE));</span>
+<span class="lineNum">      65 </span>                :<span class="lineNoCov">          0 :     for(size_t index = 0; index &lt; m_array_size; index++)</span>
+<span class="lineNum">      66 </span>                :            :     {
+<span class="lineNum">      67 </span>                :<span class="lineNoCov">          0 :         p_real_array[index] = block-&gt;points[index].real();</span>
+<span class="lineNum">      68 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      70 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
