@@ -31,7 +31,7 @@ uint64_t HackRF_radio::unique_word[] =
 HackRF_radio::HackRF_radio(hackrf_device_list_t* list, int deviceIndex)
 : p_device(nullptr)
 , m_callback(nullptr)
-, m_mode(FM)
+, m_mode(ZEROS)
 , m_radio_active(false)
 , m_freq(800000000)
 , m_bps(100000)
@@ -83,7 +83,7 @@ HackRF_radio::HackRF_radio(hackrf_device_list_t* list, int deviceIndex, std::fun
 , m_total_bits(0)                  /* Not Used */
 , m_broadcast_index(0)             /* Not Used */
 , m_VCO_time(0)                    /* Not Used */
-, m_modulator_fm(2000000, 2000000)
+, m_modulator_fm(10000000, 2000000)
 , m_modulator_bpsk(0x600DF00DDEADBEEF, 64)  // BEEF 11011 1110 1110 1111
 {
     int result = hackrf_init();
@@ -431,69 +431,24 @@ void HackRF_radio::configure_data()
     }
     else if(m_mode == BPSK || m_mode == QPSK || m_mode == AM || m_mode == FM)
     {
-        if(m_data_type == 0) // user data
-        {
-            // 10,000,000 samples per second transmit
-            // bps
-            length = m_framer.serialize((uint8_t*)m_msg.c_str(), m_msg.length(), m_block);
-        }
-        else if(m_data_type == 1) // Incrementing numbers to 100 * 10 pkts per stop
-        {
-            for(size_t i = 0; i < 100; i++)
-            {
-                for(size_t j = 0; j < 10; j++)
-                {
-                    message.append(std::to_string(i));
-                }
-            }
+        // 10,000,000 samples per second transmit
+        // bps
+        length = m_framer.serialize((uint8_t*)m_msg.c_str(), m_msg.length(), m_block);
 
-            length = m_framer.serialize((uint8_t*)message.c_str(), message.length(), m_block);
-        }
-        else if(m_data_type == 2) // incrementing letters (capitals A-Z) * 10pkts per stop
-        {
-            for(char c = 65; c < 65+26; c++)
-            {
-                for(size_t j = 0; j < 10; j++)
-                {
-                    message.append(std::to_string(c));
-                }
-            }
-
-            length = m_framer.serialize((uint8_t*)message.c_str(), message.length(), m_block);
-        }
-
-
-//        samples_per_bit = static_cast<size_t>(floor(10000000/m_bps));
-//        m_total_bits = length*samples_per_bit;
+        m_total_bits = length*samples_per_bit;
 
         if(m_mode == BPSK || m_mode == QPSK)
         {
             m_total_bits*=8; // need to bump up the samples for the modulation
         }
 
-        if(m_mode == FM) // Just a test sample case
+        input_stream = new uint8_t[length];
+
+        for(size_t i = 0; i < length; i++)
         {
-            samples_per_bit = 5000000;
-            length = 2;
-            m_total_bits = length*samples_per_bit; // going to upsample by 5 natural downsample of the radios should help
-            input_stream = new uint8_t[length];
-
-            input_stream[0] = 1;
-            input_stream[1] = 0;
-
-            // 10000000/500000 = 20
-            //  2000000/100000 = 20
-
+            input_stream[i] = static_cast<uint8_t>(m_block->points[i].real());
         }
-        else
-        {
-            input_stream = new uint8_t[length];
 
-            for(size_t i = 0; i < length; i++)
-            {
-                input_stream[i] = static_cast<uint8_t>(m_block->points[i].real());
-            }
-        }
 
         std::cout << "Samples Per Bit " << samples_per_bit << std::endl;
         std::cout << "Input Size " << length << std::endl;
@@ -520,6 +475,7 @@ void HackRF_radio::configure_data()
 
     if(m_mode == AM)
     {
+        std::cout << "modulating AM" << std::endl;
         m_modulator_am.modulate(input_stream, length, m_bit_stream_real, nullptr, m_total_bits);
         // Create Array
         for(size_t i = 0, j = 0; j < m_total_bits; i+=2, j++)

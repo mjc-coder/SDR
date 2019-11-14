@@ -11,7 +11,6 @@ using namespace std;
 
 #define REFRESH_RATE            1000.0
 #define SAMPLE_RATE             2000000.0
-#define BUFFER_SIZE             SAMPLE_RATE/2
 #define SCALE_FACTOR            2.0
 #define NUM_POINTS              10000
 #define DELTA_T                 1.0/SAMPLE_RATE
@@ -33,7 +32,6 @@ const char* LOGHEADER =  "Timestamp," \
                         "Gain,"\
                         "Decoding Scheme,"\
                         "Check CRC,"\
-                        "Num Overprocess,"\
                         "Modem Lock,"\
                         "CRC Lock,"\
                         "Headers Received,"\
@@ -83,58 +81,13 @@ enum PLOT_ENUM
 
 #ifdef GPU_ENABLED
     extern "C"
-    size_t am_gpu_demodulation(RADIO_DATA_TYPE* real, RADIO_DATA_TYPE* imag, uint8_t* output, size_t number_of_points, size_t ds);
+    double am_gpu_demodulation(RADIO_DATA_TYPE* real, RADIO_DATA_TYPE* imag, uint8_t* output, size_t number_of_points, size_t ds);
 
     extern "C"
     int32_t ones_zeros_demodulation(RADIO_DATA_TYPE* real, RADIO_DATA_TYPE* imag, size_t number_of_points);
 #endif
 
 static RtlSdr_Receiver* m_GlobalPtr;
-
-void RtlSdr_Receiver::AM_OverProcess_Callback(size_t thread_id, size_t samples_per_bit, int RADIO_ID)
-{
-    RADIO_DATA_TYPE* block_x = new RADIO_DATA_TYPE[static_cast<int>(m_GlobalPtr->m_SampleRate)];
-    RADIO_DATA_TYPE* block_y = new RADIO_DATA_TYPE[static_cast<int>(m_GlobalPtr->m_SampleRate)];
-    uint8_t* data_buffer = new uint8_t[static_cast<unsigned long>(BUFFER_SIZE)];
-    memset(data_buffer, 0, static_cast<unsigned long>(BUFFER_SIZE));
-    size_t read_number_of_bits = 0;
-
-    m_GlobalPtr->m_block_lock[RADIO_ID].lock();
-    // load data
-    memcpy(block_x, m_GlobalPtr->m_block_x[RADIO_ID]->data(), m_GlobalPtr->m_SampleRate*sizeof(RADIO_DATA_TYPE));
-    memcpy(block_y, m_GlobalPtr->m_block_y[RADIO_ID]->data(), m_GlobalPtr->m_SampleRate*sizeof(RADIO_DATA_TYPE));
-
-
-    m_GlobalPtr->m_block_lock[RADIO_ID].unlock();
-
-
-    if(!m_GlobalPtr->m_cpu_vs_gpu) // CPU demodulation
-    {
-        read_number_of_bits = m_GlobalPtr->m_am[RADIO_ID]->demodulate(block_x, block_y, data_buffer, m_GlobalPtr->m_SampleRate/2, samples_per_bit, m_GlobalPtr->m_bps);
-    }
-    else
-    {
-#ifdef GPU_ENABLED
-        read_number_of_bits = am_gpu_demodulation(block_x, block_y, data_buffer, m_GlobalPtr->m_SampleRate/2, samples_per_bit);
-#endif
-    }
-
-    if(thread_id == 0) // only save the data for the first thread
-    {
-        size_t numbits_added = m_GlobalPtr->m_ring_buffer[RADIO_ID]->append(m_GlobalPtr->m_data_buffer[RADIO_ID], read_number_of_bits);
-        if(numbits_added != read_number_of_bits)
-        {
-            std::cout << "WARNING WERE SAMPLING MORE THAN WE CAN HANDLE. LOSING ALOT OF BITS: " << read_number_of_bits - numbits_added << std::endl;
-        }
-    }
-
-    delete[] block_x;
-    delete[] block_y;
-    delete[] data_buffer;
-}
-
-
-
 
 
 
@@ -156,7 +109,6 @@ RtlSdr_Receiver::RtlSdr_Receiver(QWidget *parent)
 , m_N_Overprocess(1)
 , auto_gain(false)
 , plotVar(0)
-, ready(false)
 , m_VCO_time(0)
 , m_Normalize(false)
 , m_ABS(false)
@@ -182,17 +134,16 @@ RtlSdr_Receiver::RtlSdr_Receiver(QWidget *parent)
 , right_arLegend(nullptr)
 , groupAddress4(QStringLiteral("239.255.43.21")) // hardcode multicast on both ends
 , fout("/tmp/rtlsdr_logfile.csv", ios::out | ios::trunc)
-, debug("rtlsdr.csv", ios::out | ios::trunc)
 , m_num_activate_Radios(0)
-, filter_Real(2000, 1.0/2000000.0)
-, filter_Imag(2000, 1.0/2000000.0)
+, filter_Real(150000, 1.0/2000000.0)
+, filter_Imag(150000, 1.0/2000000.0)
 , currentTestID(0)
 , MaxTestID(2*rtlsdr_get_device_count())
-, Y_Val_Real(0)
-, Y_Val_Imag(0)
+, m_future_obj(m_exit_signal.get_future())
 {
-    for(int i = 0; i < MAX_NUM_RADOIOS; i++)
+    for(int i = 0; i < MAX_NUM_RADOIS; i++)
     {
+        ready[i] = false;
         m_radio_rtlsdr[i] = nullptr;
     }
     ui->setupUi(this);
@@ -215,6 +166,12 @@ void RtlSdr_Receiver::Initialize()
     ui->m_gain->setRange(0, 47);
     std::cout << "...." << m_SampleRate << "  " << m_NumPoints << std::endl;
 
+    // create demodulation threads
+    for(int i = 0; i < MAX_NUM_RADOIS; i++)
+    {
+        process_thread[i] = std::thread(&RtlSdr_Receiver::demodulateData, this, i);
+    }
+
 
     // Allocate all of the news
     try
@@ -225,7 +182,7 @@ void RtlSdr_Receiver::Initialize()
         m_plot_td_vector_y_imag = new QVector<RADIO_DATA_TYPE>(static_cast<int>(m_NumPoints));
 
         // data values
-        for(int i = 0; i < MAX_NUM_RADOIOS; i++)
+        for(int i = 0; i < MAX_NUM_RADOIS; i++)
         {
             m_block_index[i] = 0;
             m_temp_real[i] = new RADIO_DATA_TYPE[m_SampleRate];
@@ -234,12 +191,10 @@ void RtlSdr_Receiver::Initialize()
             m_block_y[i] = new QVector<RADIO_DATA_TYPE>(static_cast<int>(m_SampleRate));
             m_block_demod_x[i] = new QVector<RADIO_DATA_TYPE>(static_cast<int>(m_SampleRate));
             m_block_demod_y[i] = new QVector<RADIO_DATA_TYPE>(static_cast<int>(m_SampleRate));
-            m_block_output_x[i] = new QVector<RADIO_DATA_TYPE>(static_cast<int>(m_SampleRate));
-            m_block_output_y[i] = new QVector<RADIO_DATA_TYPE>(static_cast<int>(m_SampleRate));
 
             // packets and rings
-            m_data_buffer[i] = new uint8_t[static_cast<unsigned long>(BUFFER_SIZE)];
-            memset(m_data_buffer[i], 0, static_cast<unsigned long>(BUFFER_SIZE));
+            m_data_buffer[i] = new uint8_t[static_cast<unsigned long>(m_SampleRate)];
+            memset(m_data_buffer[i], 0, static_cast<unsigned long>(m_SampleRate));
             m_ring_buffer[i] = new RingBuffer<uint8_t>(static_cast<int>(m_SampleRate*2));
             m_pkt[i] = new uint8_t[MAX_PKT_SIZE];
             memset(m_pkt[i], 0, MAX_PKT_SIZE);
@@ -342,7 +297,6 @@ void RtlSdr_Receiver::Initialize()
     connect(&m_bpstimer, SIGNAL(timeout()), this, SLOT(bpsUpdateSlot()));
 
     connect(this, &RtlSdr_Receiver::triggerDeserialize, this, &RtlSdr_Receiver::deserializeData);
-    connect(this, &RtlSdr_Receiver::triggerDemodulation, this, &RtlSdr_Receiver::demodulateData);
     connect(this, &RtlSdr_Receiver::messageReceived, this, &RtlSdr_Receiver::updateDataMsg);
     ui->m_ReceiverActive->setOn(QtLight::BAD);
 
@@ -378,7 +332,7 @@ void RtlSdr_Receiver::Initialize()
 
 RtlSdr_Receiver::~RtlSdr_Receiver()
 {
-    for(int i = 0; i < MAX_NUM_RADOIOS; i++)
+    for(int i = 0; i < MAX_NUM_RADOIS; i++)
     {
         if(m_radio_rtlsdr[i])
         {
@@ -391,7 +345,17 @@ RtlSdr_Receiver::~RtlSdr_Receiver()
     m_logtimer.stop();
     m_bpstimer.stop();
 
-    for(int i = 0; i < MAX_NUM_RADOIOS; i++)
+    // Stop demodulation threads
+    m_exit_signal.set_value();
+    for(int i = 0; i < MAX_NUM_RADOIS; i++)
+    {
+        ready[i] = true;
+        cv[i].notify_one();
+        process_thread[i].join();
+    }
+
+
+    for(int i = 0; i < MAX_NUM_RADOIS; i++)
     {
 
         if(m_qpsk[i])
@@ -437,7 +401,7 @@ RtlSdr_Receiver::~RtlSdr_Receiver()
         delete rightAxisRect;
     }
 
-    for(int i = 0; i < MAX_NUM_RADOIOS; i++)
+    for(int i = 0; i < MAX_NUM_RADOIS; i++)
     {
         if(m_pkt[i])
         {
@@ -454,14 +418,6 @@ RtlSdr_Receiver::~RtlSdr_Receiver()
         if(m_data_buffer[i])
         {
             delete[] m_data_buffer[i];
-        }
-        if(m_block_output_x[i])
-        {
-            delete m_block_output_x[i];
-        }
-        if(m_block_output_y[i])
-        {
-            delete m_block_output_y[i];
         }
         if(m_block_demod_x[i])
         {
@@ -500,7 +456,7 @@ RtlSdr_Receiver::~RtlSdr_Receiver()
     {
         delete m_plot_td_vector_x;
     }
-    for(int i = 0; i < MAX_NUM_RADOIOS; i++)
+    for(int i = 0; i < MAX_NUM_RADOIS; i++)
     {
         if(m_radio_rtlsdr[i])
         {
@@ -526,7 +482,7 @@ RtlSdr_Receiver::~RtlSdr_Receiver()
     {
         delete ui;
     }
-
+    m_GlobalPtr = nullptr;
 }
 
 void RtlSdr_Receiver::ShowContextMenu(const QPoint& /*pos*/)
@@ -1421,27 +1377,6 @@ void RtlSdr_Receiver::updateDataSlot()
         }
     }
 
-
-    // Update Processor Usage
-#ifdef GPU_ENABLED
-    ui->m_cpu_average->setText(QString::number(m_nvidia_usage.m_cpu_filt_load.back(), 'f', 2));
-    ui->m_core_0->setText(QString::number(m_nvidia_usage.m_cpu0_filt_load.back(), 'f', 2));
-    ui->m_core_1->setText(QString::number(m_nvidia_usage.m_cpu1_filt_load.back(), 'f', 2));
-    ui->m_core_2->setText(QString::number(m_nvidia_usage.m_cpu2_filt_load.back(), 'f', 2));
-    ui->m_core_3->setText(QString::number(m_nvidia_usage.m_cpu3_filt_load.back(), 'f', 2));
-    ui->m_core_4->setText(QString::number(m_nvidia_usage.m_cpu4_filt_load.back(), 'f', 2));
-    ui->m_core_5->setText(QString::number(m_nvidia_usage.m_cpu5_filt_load.back(), 'f', 2));
-    ui->m_gpu_average->setText(QString::number(m_nvidia_usage.m_gpu_filt_load.back(), 'f', 2));
-#else
-    ui->m_cpu_average->setText("N/A");
-    ui->m_core_0->setText("N/A");
-    ui->m_core_1->setText("N/A");
-    ui->m_core_2->setText("N/A");
-    ui->m_core_3->setText("N/A");
-    ui->m_core_4->setText("N/A");
-    ui->m_core_5->setText("N/A");
-    ui->m_gpu_average->setText("N/A");
-#endif
     ui->m_CustomPlot->replot();
 }
 
@@ -1519,6 +1454,27 @@ void RtlSdr_Receiver::StatusUpdateSlot()
         ui->m_ValidCRC->setOn(QtLight::BAD);
     }
 
+    // Update Processor Usage
+#ifdef GPU_ENABLED
+    ui->m_cpu_average->setText(QString::number(m_nvidia_usage.m_cpu_filt_load.back(), 'f', 2));
+    ui->m_core_0->setText(QString::number(m_nvidia_usage.m_cpu0_filt_load.back(), 'f', 2));
+    ui->m_core_1->setText(QString::number(m_nvidia_usage.m_cpu1_filt_load.back(), 'f', 2));
+    ui->m_core_2->setText(QString::number(m_nvidia_usage.m_cpu2_filt_load.back(), 'f', 2));
+    ui->m_core_3->setText(QString::number(m_nvidia_usage.m_cpu3_filt_load.back(), 'f', 2));
+    ui->m_core_4->setText(QString::number(m_nvidia_usage.m_cpu4_filt_load.back(), 'f', 2));
+    ui->m_core_5->setText(QString::number(m_nvidia_usage.m_cpu5_filt_load.back(), 'f', 2));
+    ui->m_gpu_average->setText(QString::number(m_nvidia_usage.m_gpu_filt_load.back(), 'f', 2));
+#else
+    ui->m_cpu_average->setText("N/A");
+    ui->m_core_0->setText("N/A");
+    ui->m_core_1->setText("N/A");
+    ui->m_core_2->setText("N/A");
+    ui->m_core_3->setText("N/A");
+    ui->m_core_4->setText("N/A");
+    ui->m_core_5->setText("N/A");
+    ui->m_gpu_average->setText("N/A");
+#endif
+
     ui->m_data_msg->clear();
     ui->m_data_msg->appendPlainText(QString((const char*)m_pkt[0]));           // Packet Message
     ui->m_num_pkts_recieved->setNum(static_cast<int>(m_pkt_cnt));           // Pkts Received
@@ -1550,8 +1506,6 @@ void RtlSdr_Receiver::StatusUpdateSlot()
      m_actual_samples_per_second = 0;
  }
 
-
-
  void RtlSdr_Receiver::callbackRoutine(unsigned char* buffer, uint32_t /*length*/, int RADIO_ID)
  {
      if(m_GlobalPtr == nullptr ||
@@ -1563,6 +1517,8 @@ void RtlSdr_Receiver::StatusUpdateSlot()
      {
          if(m_GlobalPtr->m_radio_rtlsdr[RADIO_ID] && m_GlobalPtr->m_radio_rtlsdr[RADIO_ID]->get_is_active())
          {
+//             LowPassFilter filter_Real;
+//             LowPassFilter filter_Imag;
              // Sample Rate is 2000000 even though the buffers are coming in with 2048000 samples
             RADIO_DATA_TYPE real = 0;
             RADIO_DATA_TYPE imag = 0;
@@ -1571,7 +1527,6 @@ void RtlSdr_Receiver::StatusUpdateSlot()
             RADIO_DATA_TYPE real_high = 0;
             RADIO_DATA_TYPE imag_high = 0;
 
-            m_GlobalPtr->m_block_lock[RADIO_ID].lock();
             for(uint32_t i = 0; i < 2000000; i+=2)
             {
                 real = (buffer[i]  -127);
@@ -1598,7 +1553,6 @@ void RtlSdr_Receiver::StatusUpdateSlot()
                         real = abs(real);
                         imag = abs(imag);
                     }
-
                     (*m_GlobalPtr->m_plot_td_vector_y_real)[m_GlobalPtr->plotVar] = real;
                     (*m_GlobalPtr->m_plot_td_vector_y_imag)[m_GlobalPtr->plotVar] = imag;
                     m_GlobalPtr->plotVar++;
@@ -1606,8 +1560,8 @@ void RtlSdr_Receiver::StatusUpdateSlot()
                 }
 
                 // Fully Load Block -- All points go in here - adjusted but raw
-                (*(m_GlobalPtr->m_block_x[RADIO_ID]))[m_GlobalPtr->m_block_index[RADIO_ID]] = (static_cast<RADIO_DATA_TYPE>(buffer[i]   - 127));
-                (*(m_GlobalPtr->m_block_y[RADIO_ID]))[m_GlobalPtr->m_block_index[RADIO_ID]] = (static_cast<RADIO_DATA_TYPE>(buffer[i+1] - 127));
+                (*(m_GlobalPtr->m_block_x[RADIO_ID]))[m_GlobalPtr->m_block_index[RADIO_ID]] = static_cast<RADIO_DATA_TYPE>(buffer[i] -127);
+                (*(m_GlobalPtr->m_block_y[RADIO_ID]))[m_GlobalPtr->m_block_index[RADIO_ID]] =  static_cast<RADIO_DATA_TYPE>(buffer[i+1] -127);
                 m_GlobalPtr->m_block_index[RADIO_ID]++;
                 m_GlobalPtr->m_actual_samples_per_second++; // I/Q samples are 2 for each sample
 
@@ -1617,8 +1571,16 @@ void RtlSdr_Receiver::StatusUpdateSlot()
                 if(m_GlobalPtr->m_block_index[RADIO_ID] % (m_GlobalPtr->m_SampleRate) == 0)
                 {
                     m_GlobalPtr->m_block_index[RADIO_ID] = 0;
-                    emit m_GlobalPtr->triggerDemodulation(RADIO_ID);    // Trigger demodulation with Radio ID
-                    m_GlobalPtr->m_radio_rtlsdr[RADIO_ID]->set_active(false);
+                    // Load next buffer
+                    m_GlobalPtr->m_block_lock[RADIO_ID].lock();
+                    memcpy(m_GlobalPtr->m_block_demod_x[RADIO_ID]->data(), m_GlobalPtr->m_block_x[RADIO_ID]->data(), m_GlobalPtr->m_SampleRate*sizeof(RADIO_DATA_TYPE));
+                    memcpy(m_GlobalPtr->m_block_demod_y[RADIO_ID]->data(), m_GlobalPtr->m_block_y[RADIO_ID]->data(), m_GlobalPtr->m_SampleRate*sizeof(RADIO_DATA_TYPE));
+                    m_GlobalPtr->m_block_lock[RADIO_ID].unlock();
+                    if(RADIO_ID == 0)
+                    {
+                        m_GlobalPtr->ready[RADIO_ID] = true;
+                        m_GlobalPtr->cv[RADIO_ID].notify_one();
+                    }
                 }
 
                 // Reset Plot Variables
@@ -1626,37 +1588,16 @@ void RtlSdr_Receiver::StatusUpdateSlot()
                 {
                     m_GlobalPtr->plotVar = 0;
                 }
+
+
             }
 
-
-            int8_t a = 0;
-            int8_t b = 0;
-            uint8_t ONE = 1;
-            uint8_t ZERO = 0;
-            for(size_t i = 0; i < 2000000; i++)
-            {
-                //fout << f.do_sample(buffer[i]-127) << "," << std::endl;
-               // fout << (int8_t)(buffer[i]-127) << "," << std::endl;
-                a = buffer[i] - 127;
-                b = buffer[i+2] - 127;
-
-             //   std::cout << (int)a << "  " << (int)b << "  " << std::endl;
-                m_GlobalPtr->debug << a;
-//                if( (a < 0 and b > 0) || (a > 0 and b < 0))
-//                {
-//              //      std::cout << "HIGH" << std::endl;
-//                  //    fout << a;
-//                }
-//                else
-//                {
-//                 //   fout << b;
-//                  //  fout << (uint8_t)0 << std::endl;
-//                //    std::cout << "LOW" << std::endl;
-//                }
-            }
-
-
-            m_GlobalPtr->m_block_lock[RADIO_ID].unlock();
+//            ofstream fout("rtlsdr.csv", ios::out | ios::trunc);
+//            for(size_t i = 0; i < 2000000; i+=2)
+//            {
+//                //fout << f.do_sample(buffer[i]-127) << "," << std::endl;
+//                fout << m_GlobalPtr->filter_Real.update((uint8_t)(buffer[i]-127)) << "," << std::endl;
+//            }
          }
      }
  }
@@ -1699,7 +1640,7 @@ void RtlSdr_Receiver::on_pushButton_clicked()
 
     if(rtlsdr_get_device_count() > 0)
     {
-        for(int i = 0; i < MAX_NUM_RADOIOS; i++)
+        for(int i = 0; i < MAX_NUM_RADOIS; i++)
         {
             if(m_radio_rtlsdr[i] != nullptr)
             {
@@ -1851,14 +1792,14 @@ void RtlSdr_Receiver::on_pushButton_2_clicked()
         {
             Initialize(); // only trigger once
 
-            for(size_t i = 0; i < rtlsdr_get_device_count() && i < MAX_NUM_RADOIOS; i++)
+            for(size_t i = 0; i < rtlsdr_get_device_count() && i < MAX_NUM_RADOIS; i++)
             {
                 CreateRadio(static_cast<int>(i));
             }
         }
         else if(ui->m_radio_list->currentText() == QString("Initialize N Radios"))
         {
-            for(size_t i = 0; i < ui->m_num_radios_to_activate->value() && i < MAX_NUM_RADOIOS; i++)
+            for(size_t i = 0; i < ui->m_num_radios_to_activate->value() && i < MAX_NUM_RADOIS; i++)
             {
                 CreateRadio(static_cast<int>(i));
             }
@@ -1905,8 +1846,7 @@ void RtlSdr_Receiver::processPendingSystemMonitorDatagrams()
         short TMP35_rtlsdr_4;
         short TMP35_rtlsdr_5;
         short TMP35_hackrf;
-        short INA219_0_shuntvoltage;
-        short INA219_0_busvoltage;
+        short INA219_0_shuntvoltage;        short INA219_0_busvoltage;
         short INA219_0_current_mA;
         short INA219_0_loadvoltage;
         short INA219_0_power_mW;
@@ -1973,7 +1913,7 @@ void RtlSdr_Receiver::processPendingSystemMonitorDatagrams()
        m_plot_temps[VectorIndexes::HackRF]->append((msg->TMP35_hackrf)/100.0);
        m_plot_temps[VectorIndexes::HackRF]->pop_front();
 
-       m_plot_currents[VectorIndexes::RTL0]->append(abs(msg->INA219_0_current_mA)/100.0);
+       m_plot_currents[VectorIndexes::RTL0]->append(abs(msg->INA219_4_current_mA)/100.0);
        m_plot_currents[VectorIndexes::RTL0]->pop_front();
        m_plot_currents[VectorIndexes::RTL1]->append(abs(msg->INA219_1_current_mA)/100.0);
        m_plot_currents[VectorIndexes::RTL1]->pop_front();
@@ -1981,7 +1921,7 @@ void RtlSdr_Receiver::processPendingSystemMonitorDatagrams()
        m_plot_currents[VectorIndexes::RTL2]->pop_front();
        m_plot_currents[VectorIndexes::RTL3]->append(abs(msg->INA219_3_current_mA)/100.0);
        m_plot_currents[VectorIndexes::RTL3]->pop_front();
-       m_plot_currents[VectorIndexes::RTL4]->append(abs(msg->INA219_4_current_mA)/100.0);
+       m_plot_currents[VectorIndexes::RTL4]->append(abs(msg->INA219_0_current_mA)/100.0);
        m_plot_currents[VectorIndexes::RTL4]->pop_front();
        m_plot_currents[VectorIndexes::RTL5]->append(abs(msg->INA219_5_current_mA)/100.0);
        m_plot_currents[VectorIndexes::RTL5]->pop_front();
@@ -2011,134 +1951,146 @@ void RtlSdr_Receiver::processPendingSystemMonitorDatagrams()
 
 void RtlSdr_Receiver::demodulateData(int RADIO_ID)
 {
-    //////////////////////////////////
-    // Call Demodulator
-    size_t samples_per_bit = 0;
-    if(m_radio_rtlsdr[RADIO_ID])
+    RADIO_DATA_TYPE* block_x = new RADIO_DATA_TYPE[m_SampleRate];
+    RADIO_DATA_TYPE* block_y = new RADIO_DATA_TYPE[m_SampleRate];
+
+    while(this->m_future_obj.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout)
     {
+        std::unique_lock<std::mutex> lk(m_process_lock[RADIO_ID]);
+        cv[RADIO_ID].wait(lk, [this, RADIO_ID]{return ready[RADIO_ID];});
+        ready[RADIO_ID] = false;
+
+        //////////////////////////////////
+        // Call Demodulator
+        size_t samples_per_bit = 0;
+
         // decimate real data down to original -- already downsampled by 5 (1000000 to 2000000)
         // now decimate by the BPS
         samples_per_bit = static_cast<size_t>(floor(10000000/(m_bps*5)));
-    }
-    else
-    {
-        std::cout << "Invalid RADIO ???" << std::endl;
-        return; // invalid radio if null
-    }
 
+        // load data for this test
+        memcpy(block_x, m_block_demod_x[RADIO_ID]->data(), m_SampleRate*sizeof(RADIO_DATA_TYPE));
+        memcpy(block_y, m_block_demod_y[RADIO_ID]->data(), m_SampleRate*sizeof(RADIO_DATA_TYPE));
 
-    size_t read_number_of_bits = 0;
+        size_t read_number_of_bits = 0;
 
-    if( (m_radio_rtlsdr[RADIO_ID]) )
-    {
-        if(m_mode == Radio_RTLSDR::AM)
+        std::cout << "Demodulation data [Radio ID: " << RADIO_ID << "]" << std::endl;
+
+        if( (m_radio_rtlsdr[RADIO_ID]) )
         {
-            if(!m_cpu_vs_gpu) // CPU demodulation
+            if(m_mode == Radio_RTLSDR::AM)
             {
-                m_block_lock[RADIO_ID].lock();
-                read_number_of_bits = m_GlobalPtr->m_am[RADIO_ID]->demodulate(m_block_x[RADIO_ID]->data(), m_block_y[RADIO_ID]->data(), m_data_buffer[RADIO_ID], m_GlobalPtr->m_SampleRate/2, samples_per_bit, m_GlobalPtr->m_bps);
-                m_block_lock[RADIO_ID].unlock();
-            }
-            else
-            {
-
-#ifdef GPU_ENABLED
-               m_block_lock[RADIO_ID].lock();
-               read_number_of_bits = am_gpu_demodulation(m_block_x[RADIO_ID]->data(), m_block_y[RADIO_ID]->data(), m_data_buffer[RADIO_ID], m_SampleRate/2, samples_per_bit);
-               m_block_lock[RADIO_ID].unlock();
-#endif
-            }
-
-            size_t numbits_added = m_GlobalPtr->m_ring_buffer[RADIO_ID]->append(m_GlobalPtr->m_data_buffer[RADIO_ID], read_number_of_bits);
-            if(numbits_added != read_number_of_bits)
-            {
-                std::cout << "WARNING WERE SAMPLING MORE THAN WE CAN HANDLE. LOSING ALOT OF BITS: " << read_number_of_bits - numbits_added << std::endl;
-            }
-
-            emit triggerDeserialize(RADIO_ID);
-        }
-        else if(m_mode == Radio_RTLSDR::FM)
-        {
-            std::cout << "FM Demodulation" << std::endl;
-            if(!m_cpu_vs_gpu) // CPU demodulation
-            {
-                std::cout << "Got Here " << samples_per_bit << std::endl;
-                m_block_lock[RADIO_ID].lock();
-                std::cout << "SAMPLES PER BIT " << samples_per_bit << std::endl;
-                read_number_of_bits = m_fm[RADIO_ID]->demodulate(m_block_x[RADIO_ID]->data(), m_block_y[RADIO_ID]->data(), m_data_buffer[RADIO_ID], m_SampleRate/2, samples_per_bit);
-
-                m_block_lock[RADIO_ID].unlock();
-
-            }
-            else
-            {
-                m_block_lock[RADIO_ID].lock();
-#ifdef GPU_ENABLED
-               // TODO read_number_of_bits = am_gpu_demodulation(m_block_x, m_block_y, m_data_buffer, m_SampleRate/2, samples_per_bit);
-#endif
-                m_block_lock[RADIO_ID].unlock();
-            }
-            size_t numbits_added = m_ring_buffer[RADIO_ID]->append(m_data_buffer[RADIO_ID], read_number_of_bits);
-            if(numbits_added != read_number_of_bits)
-            {
-                std::cout << "DUDE WERE LOSING ALOT OF BITS: " << read_number_of_bits - numbits_added << std::endl;
-            }
-
-          //  emit triggerDeserialize(RADIO_ID);
-        }
-        else if(m_mode == Radio_RTLSDR::ZEROS || m_mode == Radio_RTLSDR::ONES)
-        {
-            if(!m_cpu_vs_gpu) // CPU demodulation
-            {
-                m_block_lock[RADIO_ID].lock();
-                for(size_t i = 0; i < m_SampleRate/2; i++)
+                if(!m_cpu_vs_gpu) // CPU demodulation
                 {
-                    // magnitude should always be between 0 - 127, so decision is based on 63.5 middle ground
-                    if( sqrt(m_block_x[RADIO_ID]->operator[](i)*m_block_x[RADIO_ID]->operator[](i) + m_block_y[RADIO_ID]->operator[](i)*m_block_y[RADIO_ID]->operator[](i)) >= AM<RADIO_DATA_TYPE>::THRESHOLD )
-                    {
-                        m_ones_zeros[RADIO_ID]->increment(1); // got a high
-                    }
-                    else
-                    {
-                        m_ones_zeros[RADIO_ID]->decrement(1); // Got a low
-                    }
+                    std::cout << "CPU Demodulation" << std::endl;
+                    m_block_lock[RADIO_ID].lock();
+                    read_number_of_bits = m_GlobalPtr->m_am[RADIO_ID]->demodulate(block_x, block_y, m_data_buffer[RADIO_ID], m_GlobalPtr->m_SampleRate/2, samples_per_bit);
+                    m_block_lock[RADIO_ID].unlock();
                 }
-                m_block_lock[RADIO_ID].unlock();
+                else
+                {
+                    std::cout << "GPU Demodulation" << std::endl;
+    #ifdef GPU_ENABLED
+                   m_block_lock[RADIO_ID].lock();
+                   am_gpu_demodulation(block_x, block_y, m_data_buffer[RADIO_ID], m_SampleRate/2, samples_per_bit);
+                   read_number_of_bits = (m_SampleRate/2)/samples_per_bit;
+                   m_block_lock[RADIO_ID].unlock();
+    #endif
+                }
+
+                size_t numbits_added = m_GlobalPtr->m_ring_buffer[RADIO_ID]->append(m_GlobalPtr->m_data_buffer[RADIO_ID], read_number_of_bits);
+                if(numbits_added != read_number_of_bits)
+                {
+                    std::cout << "WARNING WERE SAMPLING MORE THAN WE CAN HANDLE. LOSING ALOT OF BITS: " << read_number_of_bits - numbits_added << std::endl;
+                }
+
+                emit triggerDeserialize(RADIO_ID);
+            }
+            else if(m_mode == Radio_RTLSDR::FM)
+            {
+                std::cout << "FM Demodulation" << std::endl;
+                if(!m_cpu_vs_gpu) // CPU demodulation
+                {
+                    std::cout << "Got Here " << samples_per_bit << std::endl;
+                    m_block_lock[RADIO_ID].lock();
+                    std::cout << "SAMPLES PER BIT " << samples_per_bit << std::endl;
+                    read_number_of_bits = m_fm[RADIO_ID]->demodulate(block_x, block_y, m_data_buffer[RADIO_ID], m_SampleRate/2, samples_per_bit);
+                    m_block_lock[RADIO_ID].unlock();
+                }
+                else
+                {
+                    m_block_lock[RADIO_ID].lock();
+    #ifdef GPU_ENABLED
+                   // TODO read_number_of_bits = am_gpu_demodulation(block_x, block_y, m_data_buffer, m_SampleRate/2, samples_per_bit);
+    #endif
+                    m_block_lock[RADIO_ID].unlock();
+                }
+                size_t numbits_added = m_ring_buffer[RADIO_ID]->append(m_data_buffer[RADIO_ID], read_number_of_bits);
+                if(numbits_added != read_number_of_bits)
+                {
+                    std::cout << "DUDE WERE LOSING ALOT OF BITS: " << read_number_of_bits - numbits_added << std::endl;
+                }
+
+              //  emit triggerDeserialize(RADIO_ID);
+            }
+            else if(m_mode == Radio_RTLSDR::ZEROS || m_mode == Radio_RTLSDR::ONES)
+            {
+                if(!m_cpu_vs_gpu) // CPU demodulation
+                {
+                    m_block_lock[RADIO_ID].lock();
+                    for(size_t i = 0; i < m_SampleRate/2; i++)
+                    {
+                        // magnitude should always be between 0 - 127, so decision is based on 63.5 middle ground
+                        if( sqrt(block_x[i]*block_x[i] + block_y[i]*block_y[i] ) >= AM<RADIO_DATA_TYPE>::THRESHOLD )
+                        {
+                            m_ones_zeros[RADIO_ID]->increment(1); // got a high
+                        }
+                        else
+                        {
+                            m_ones_zeros[RADIO_ID]->decrement(1); // Got a low
+                        }
+                    }
+                    m_block_lock[RADIO_ID].unlock();
+                }
+                else
+                {
+
+    #ifdef GPU_ENABLED
+                   m_block_lock[RADIO_ID].lock();
+                   // positive / negative increments are returned by the ones_zeros demoduation
+                   size_t numOfOnes = ones_zeros_demodulation(block_x, block_y, m_SampleRate/2);
+
+                   m_ones_zeros[RADIO_ID]->increment(numOfOnes);
+                   m_ones_zeros[RADIO_ID]->decrement(m_SampleRate/2 - numOfOnes);
+
+                   m_block_lock[RADIO_ID].unlock();
+    #endif
+                }
+
+                read_number_of_bits+= m_SampleRate/2;
+            }
+            else if(m_mode == Radio_RTLSDR::BPSK)
+            {
+                //read_number_of_bits = m_bpsk->demodulate(*m_block_demod, m_data_buffer, m_SampleRate/2, samples_per_bit, m_temp_real, m_temp_imag);
+                //m_ring_buffer->append(m_data_buffer, read_number_of_bits);
+            }
+            else if(m_mode == Radio_RTLSDR::QPSK)
+            {
+              //  read_number_of_bits = m_qpsk->demodulate(*m_block_demod, m_data_buffer, 512000*2, samples_per_bit);
+              //  m_ring_buffer->append(m_data_buffer, read_number_of_bits);
             }
             else
             {
-
-#ifdef GPU_ENABLED
-               m_block_lock[RADIO_ID].lock();
-               // positive / negative increments are returned by the ones_zeros demoduation
-               size_t numOfOnes = ones_zeros_demodulation(m_block_x[RADIO_ID]->data(), m_block_y[RADIO_ID]->data(), m_SampleRate/2);
-
-               m_ones_zeros[RADIO_ID]->increment(numOfOnes);
-               m_ones_zeros[RADIO_ID]->decrement(m_SampleRate/2 - numOfOnes);
-
-               m_block_lock[RADIO_ID].unlock();
-#endif
+                // Do NOthing
             }
+        }
 
-            read_number_of_bits+= m_SampleRate/2;
-        }
-        else if(m_mode == Radio_RTLSDR::BPSK)
-        {
-            //read_number_of_bits = m_bpsk->demodulate(*m_block_demod, m_data_buffer, m_SampleRate/2, samples_per_bit, m_temp_real, m_temp_imag);
-            //m_ring_buffer->append(m_data_buffer, read_number_of_bits);
-        }
-        else if(m_mode == Radio_RTLSDR::QPSK)
-        {
-          //  read_number_of_bits = m_qpsk->demodulate(*m_block_demod, m_data_buffer, 512000*2, samples_per_bit);
-          //  m_ring_buffer->append(m_data_buffer, read_number_of_bits);
-        }
-        else
-        {
-            // Do NOthing
-        }
+        m_actual_bits_per_second += read_number_of_bits;
     }
 
-    m_actual_bits_per_second += read_number_of_bits;
+    delete[] block_x;
+    delete[] block_y;
+
 }
 
 
@@ -2160,7 +2112,6 @@ void RtlSdr_Receiver::LogData()
     fout << m_radio_rtlsdr[0]->get_gain_agc()/10.0 << ",";
     fout << m_mode << ",";
     fout << m_check_the_crc << ",";
-    fout << m_N_Overprocess << ",";
     fout << ui->m_ModemLock->getState() << ",";
     fout << ui->m_ValidCRC->getState() << ",";
     fout << m_num_validHeaders << ",";
@@ -2265,6 +2216,7 @@ void RtlSdr_Receiver::PerformanceTests(int testID)
 
     size_t num_radios = testID/2;
 
+
     for(int i = 0; i <= num_radios; i++)
     {
         CreateRadio(i);
@@ -2290,20 +2242,45 @@ void RtlSdr_Receiver::PerformanceTests(int testID)
     filename += "_logfile.csv";
 
     fout.open(filename, ios::out | ios::trunc);
+    fout << LOGHEADER << std::endl;
+
 
     // configure the test
     if(testID %2 == 0)
     {
+        ui->m_rb_CPU->setCheckable(true);
+        ui->m_rb_GPU->setCheckable(true);
+        ui->m_rb_GPU->setEnabled(true);
+        ui->m_rb_CPU->setEnabled(true);
         ui->m_rb_CPU->setChecked(true);
+        ui->m_rb_GPU->setChecked(false);   
     }
     else
     {
+        ui->m_rb_CPU->setCheckable(true);
+        ui->m_rb_GPU->setCheckable(true);
+        ui->m_rb_GPU->setEnabled(true);
+        ui->m_rb_CPU->setEnabled(true);
         ui->m_rb_CPU->setChecked(false);
+        ui->m_rb_GPU->setChecked(true);
     }
 
     for(int j = 0; j <= num_radios; j++)
     {
         ConfigureRadio(j);
+    }
+
+    if(testID %2 == 0)
+    {
+        // Configure CPU Demodulation
+        std::cout << "Performance test configured for CPU" << std::endl;
+        m_cpu_vs_gpu = false;
+    }
+    else
+    {
+        std::cout << "Performance test configured for GPU" << std::endl;
+        // Configure GPU Demodulation
+        m_cpu_vs_gpu = true;
     }
 
     // disable all editable fields
@@ -2320,10 +2297,12 @@ void RtlSdr_Receiver::PerformanceTests(int testID)
     ui->m_decoding_scheme->setEnabled(false);
     ui->m_check_crc->setEnabled(false);
 
+    m_DisablePlots = false; // turn off the plots while running
+
 
     m_logtimer.start(); // start logger to record data
     m_performanceTest.setSingleShot(true);
-    m_performanceTest.setInterval(3000); // 120 seconds of data
+    m_performanceTest.setInterval(1000*120); // 2 minutes of data
     m_performanceTest.start();
     ui->statusbar->showMessage(QString("Performance Test In Progress [LogFile: " + QString(filename.c_str()) + "]  Executing Test ") + QString::number(testID+1) + "/" + QString::number(MaxTestID), 0);
     // exit to allow GUI to run, let the timer trigger the next test
@@ -2366,7 +2345,7 @@ void RtlSdr_Receiver::CreateRadio(int RADIO_ID)
 
 void RtlSdr_Receiver::TearDownRadios()
 {
-    for(int i = 0; i < MAX_NUM_RADOIOS; i++)
+    for(int i = 0; i < MAX_NUM_RADOIS; i++)
     {
         if(m_radio_rtlsdr[i] != nullptr)
         {
@@ -2380,7 +2359,7 @@ void RtlSdr_Receiver::TearDownRadios()
 
 void RtlSdr_Receiver::ConfigureRadio(int RADIO_ID)
 {
-    if(ui == nullptr && RADIO_ID < MAX_NUM_RADOIOS)
+    if(ui == nullptr && RADIO_ID < MAX_NUM_RADOIS)
     {
         return;
     }
@@ -2434,7 +2413,7 @@ void RtlSdr_Receiver::FinishTest()
 {
     TearDownRadios();
 
-    // disable all editable fields
+    // enable all editable fields
     ui->m_radio_list->setEnabled(true);
     ui->m_num_radios_to_activate->setEnabled(true);
     ui->m_sample_block_multiplier->setEnabled(true);
@@ -2447,11 +2426,16 @@ void RtlSdr_Receiver::FinishTest()
     ui->m_gain->setEnabled(true);
     ui->m_decoding_scheme->setEnabled(true);
     ui->m_check_crc->setEnabled(true);
+    m_DisablePlots = true; // turn off the plots while running
 
-    if(currentTestID < MaxTestID)
+    if((currentTestID + 1) < MAX_NUM_RADOIS*2)
     {
         currentTestID++;
         emit PerformanceTestSignal(currentTestID);
+    }
+    else
+    {
+        ui->statusbar->showMessage("Performance Tests Complete ", 0);
     }
 }
 

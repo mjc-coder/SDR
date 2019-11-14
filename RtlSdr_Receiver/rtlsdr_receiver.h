@@ -20,7 +20,7 @@
 #include <cpu_usage.h>
 #include <system_usage.h>
 
-#define MAX_NUM_RADOIOS 6
+#define MAX_NUM_RADOIS 6
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class RtlSdr_Receiver; }
@@ -108,7 +108,7 @@ private:
     
 private:
     Ui::RtlSdr_Receiver *ui;
-    Radio_RTLSDR* m_radio_rtlsdr[MAX_NUM_RADOIOS];
+    Radio_RTLSDR* m_radio_rtlsdr[MAX_NUM_RADOIS];
     size_t m_RefreshRate;
     size_t m_SampleRate;
     size_t m_NumPoints;
@@ -130,10 +130,9 @@ private:
     QTimer m_performanceTest;
 
     // Standard Types
-    uint32_t m_block_index[MAX_NUM_RADOIOS];
+    uint32_t m_block_index[MAX_NUM_RADOIS];
     bool auto_gain;
     size_t plotVar;
-    bool ready;
     RADIO_DATA_TYPE m_VCO_time;
     bool m_Normalize;
     bool m_ABS;
@@ -156,20 +155,18 @@ private:
     QVector<RADIO_DATA_TYPE>* m_plot_td_vector_x;
     QVector<RADIO_DATA_TYPE>* m_plot_td_vector_y_real;
     QVector<RADIO_DATA_TYPE>* m_plot_td_vector_y_imag;
-    RADIO_DATA_TYPE* m_temp_real[MAX_NUM_RADOIOS];
-    RADIO_DATA_TYPE* m_temp_imag[MAX_NUM_RADOIOS];
+    RADIO_DATA_TYPE* m_temp_real[MAX_NUM_RADOIS];
+    RADIO_DATA_TYPE* m_temp_imag[MAX_NUM_RADOIS];
 
     // Demodulation data
-    QVector<RADIO_DATA_TYPE>* m_block_x[MAX_NUM_RADOIOS];
-    QVector<RADIO_DATA_TYPE>* m_block_y[MAX_NUM_RADOIOS];
-    QVector<RADIO_DATA_TYPE>* m_block_demod_x[MAX_NUM_RADOIOS];
-    QVector<RADIO_DATA_TYPE>* m_block_demod_y[MAX_NUM_RADOIOS];
-    QVector<RADIO_DATA_TYPE>* m_block_output_x[MAX_NUM_RADOIOS];
-    QVector<RADIO_DATA_TYPE>* m_block_output_y[MAX_NUM_RADOIOS];
-    uint8_t* m_data_buffer[MAX_NUM_RADOIOS];
-    RingBuffer<uint8_t>* m_ring_buffer[MAX_NUM_RADOIOS];
-    uint8_t* m_pkt[MAX_NUM_RADOIOS];
-    uint8_t* m_temp_pkt[MAX_NUM_RADOIOS];
+    QVector<RADIO_DATA_TYPE>* m_block_x[MAX_NUM_RADOIS];
+    QVector<RADIO_DATA_TYPE>* m_block_y[MAX_NUM_RADOIS];
+    QVector<RADIO_DATA_TYPE>* m_block_demod_x[MAX_NUM_RADOIS];
+    QVector<RADIO_DATA_TYPE>* m_block_demod_y[MAX_NUM_RADOIS];
+    uint8_t* m_data_buffer[MAX_NUM_RADOIS];
+    RingBuffer<uint8_t>* m_ring_buffer[MAX_NUM_RADOIS];
+    uint8_t* m_pkt[MAX_NUM_RADOIS];
+    uint8_t* m_temp_pkt[MAX_NUM_RADOIS];
 
     // QCP Axis
     QCPAxisRect* leftAxisRect;
@@ -177,13 +174,13 @@ private:
     QCPLegend *left_arLegend;
     QCPLegend *right_arLegend;
 
-    confidence_counter* m_ones_zeros[MAX_NUM_RADOIOS];
-    confidence_counter* m_packet_confidence[MAX_NUM_RADOIOS];
-    PacketFramer<uint8_t>* m_framer[MAX_NUM_RADOIOS];
-    ::AM<RADIO_DATA_TYPE>* m_am[MAX_NUM_RADOIOS];
-    ::FM<RADIO_DATA_TYPE>* m_fm[MAX_NUM_RADOIOS];
-    ::BPSK* m_bpsk[MAX_NUM_RADOIOS];
-    ::QPSK* m_qpsk[MAX_NUM_RADOIOS];
+    confidence_counter* m_ones_zeros[MAX_NUM_RADOIS];
+    confidence_counter* m_packet_confidence[MAX_NUM_RADOIS];
+    PacketFramer<uint8_t>* m_framer[MAX_NUM_RADOIS];
+    ::AM<RADIO_DATA_TYPE>* m_am[MAX_NUM_RADOIS];
+    ::FM<RADIO_DATA_TYPE>* m_fm[MAX_NUM_RADOIS];
+    ::BPSK* m_bpsk[MAX_NUM_RADOIS];
+    ::QPSK* m_qpsk[MAX_NUM_RADOIS];
 
 
     // multicast receiver
@@ -210,18 +207,22 @@ private:
     System_Usage m_nvidia_usage;
 #endif
 
-    // threads last
-    std::mutex m_block_lock[MAX_NUM_RADOIOS];
+
+    std::mutex m_block_lock[MAX_NUM_RADOIS];
     std::fstream fout;
-    std::fstream debug;
     uint32_t m_num_activate_Radios;
     LowPassFilter filter_Real;
     LowPassFilter filter_Imag;
     size_t currentTestID;
     size_t MaxTestID;
-    double Y_Val_Real;
-    double Y_Val_Imag;
-    double alpha;
+
+    // threads last
+    std::promise<void> m_exit_signal;
+    std::future<void> m_future_obj;
+    std::thread process_thread[MAX_NUM_RADOIS];
+    std::condition_variable cv[MAX_NUM_RADOIS];
+    bool ready[MAX_NUM_RADOIS];
+    std::mutex m_process_lock[MAX_NUM_RADOIS];
 };
 
 

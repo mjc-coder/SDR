@@ -9,8 +9,8 @@ Hackrf_Transmitter::Hackrf_Transmitter(QWidget *parent)
 , agc(false)
 , freq(800)
 , bps(100000)
-, lna(10)
-, m_mode(HackRF_radio::FM)
+, lna(0)
+, m_mode(HackRF_radio::ZEROS)
 , m_data_type(USER)
 {
     ui->setupUi(this);
@@ -139,6 +139,7 @@ void Hackrf_Transmitter::on_m_StartTransmit_clicked()
             m_radio->set_encoding_mode(m_mode);
             m_radio->set_data_message((ui->m_data_message->toPlainText()).toUtf8().constData(), m_data_type);
             m_radio->transmit_enabled(true);
+            std::cout << "Radio should be active now..." << std::endl;
         }
     }
     else
