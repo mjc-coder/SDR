@@ -1,4 +1,4 @@
-/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /Users/michealcowan/CLionProjects/RadioNode
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /Users/michealcowan/CLionProjects/SDR/RadioNode
 CMake Warning (dev) in CMakeLists.txt:
   No project() command is present.  The top-level CMakeLists.txt file must
   contain a literal, direct call to the project() command.  Add a line of
@@ -12,13 +12,28 @@ CMake Warning (dev) in CMakeLists.txt:
   line.
 This warning is for project developers.  Use -Wno-dev to suppress it.
 
+-- The C compiler identification is AppleClang 11.0.0.11000033
+-- The CXX compiler identification is AppleClang 11.0.0.11000033
+-- Check for working C compiler: /Library/Developer/CommandLineTools/usr/bin/cc
+-- Check for working C compiler: /Library/Developer/CommandLineTools/usr/bin/cc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /Library/Developer/CommandLineTools/usr/bin/c++
+-- Check for working CXX compiler: /Library/Developer/CommandLineTools/usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found GTest: /usr/local/lib/libgtest.a  
 Gathering source from common
 Gathering source from streams
 Gathering source from DigitalSignalProcessing
 Gathering source from network
 Gathering source from crc
 Gathering source from arduino_if
-Gathering source from /Users/michealcowan/CLionProjects/RadioNode/third-party/FIR-filter-class
+Gathering source from /Users/michealcowan/CLionProjects/SDR/RadioNode/third-party/FIR-filter-class
 -- Configuring done
 -- Generating done
--- Build files have been written to: /Users/michealcowan/CLionProjects/RadioNode/cmake-build-debug
+-- Build files have been written to: /Users/michealcowan/CLionProjects/SDR/RadioNode/cmake-build-debug

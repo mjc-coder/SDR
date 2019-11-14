@@ -20,7 +20,7 @@ template<class data_type>
 class AM
 {
 public:
-    static constexpr double THRESHOLD = 60; //sqrt(127.0*127.0 + 127.0*127.0);
+    static constexpr double THRESHOLD = 80; //sqrt(125.0*125.0 + 125.0*125.0) / 2;
 
 public:
     AM()
@@ -46,20 +46,9 @@ public:
         delete[] m_RealData;
     }
 
-    size_t demodulate(data_type* real, data_type* imag, uint8_t* output, size_t number_of_points, size_t downsample, size_t bps)
+    size_t demodulate(data_type* real, data_type* imag, uint8_t* output, size_t number_of_points, size_t downsample)
     {        
-        std::cout << "Demodulating " << number_of_points << std::endl;
-        m_alpha = ((1.0/(2000000.0))/(1.0/(2.0*bps)));
-        size_t out_index = 0;
-
-        for (size_t i = 0; i < number_of_points; i++)
-        {
-            m_real += m_alpha*(real[i] - m_real);
-            m_imag += m_alpha*(imag[i] - m_imag);
-            real[i] = m_real;
-            imag[i] = m_imag;
-        }
-
+         size_t out_index = 0;
 
         // Complex Absolute -- downsamples at the same time
         for (size_t i = 0; i < number_of_points; i+=downsample, out_index++)

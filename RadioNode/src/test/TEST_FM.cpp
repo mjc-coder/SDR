@@ -22,14 +22,14 @@ TEST(FM, modulate)
     memset(modulated_real, 0, 100*10*sizeof(RADIO_DATA_TYPE));
     memset(modulated_imag, 0, 100*10*sizeof(RADIO_DATA_TYPE));
 
-    FM<RADIO_DATA_TYPE> fm(100,10);
+    FM<RADIO_DATA_TYPE> fm(100,10, 20, 10);
 
-    fm.modulate(inputStream, 10, modulated_real, modulated_imag, 1000);
+    fm.modulate(inputStream, 10, modulated_real, modulated_imag, 1000, 100);
 
     for(size_t i = 0; i < 10*100; i++)
     {
-        std::cout << i << "  " << modulated_real[i] << "  " << modulatedStream[i] << std::endl;
-       // ASSERT_NEAR(modulated_real[i], modulatedStream[i], 0.000000001) << "Failed at index " << i << "  " << inputStream[i] << "  " << modulatedStream[i];
+        //std::cout << i << "  " << modulated_real[i] << "  " << modulatedStream[i] << std::endl;
+       ASSERT_NEAR(modulated_real[i], modulatedStream[i], 0.000000001) << "Failed at index " << i << "  " << inputStream[i] << "  " << modulatedStream[i];
     }
 
     delete[] modulated_real;
@@ -77,7 +77,7 @@ TEST(FM, ModDemodResampled)
     ////////////////////////////////////////////////////////////////////////
     /// Modulate Data
     ////////////////////////////////////////////////////////////////////////
-    fm.modulate(inputStream, 10, modulated_real, modulated_imag, 1000);
+    fm.modulate(inputStream, 10, modulated_real, modulated_imag, 1000, 100);
 
     for(size_t i = 0; i < 10*100; i++)
     {
@@ -115,12 +115,12 @@ TEST(FM, ModDemodResampledHigherFreq)
 
     uint8_t outputDemod[10] = {0};
 
-    FM<RADIO_DATA_TYPE> fm(TX_SAMPLE_RATE,RX_SAMPLE_RATE, 500, 1000);
+    FM<RADIO_DATA_TYPE> fm(TX_SAMPLE_RATE,RX_SAMPLE_RATE, 15000, 1000);
 
     ////////////////////////////////////////////////////////////////////////
     /// Modulate Data
     ////////////////////////////////////////////////////////////////////////
-    fm.modulate(inputStream, 10, modulated_real, modulated_imag, input_stream_size);
+    fm.modulate(inputStream, 10, modulated_real, modulated_imag, input_stream_size, TX_SAMPLE_RATE);
 
     // The receiver is downsampled by 2 transmit 100 samples received 50 samples
     size_t decimatedPoints = decimate<RADIO_DATA_TYPE>(modulated_real, input_stream_size, 5);
@@ -132,6 +132,7 @@ TEST(FM, ModDemodResampledHigherFreq)
 
     for(size_t i = 0; i < 10; i++)
     {
+        std::cout << (int)outputDemod[i] << "  " << (int)outputStream[i] << std::endl;
         ASSERT_EQ(outputDemod[i], outputStream[i]) << "Failed at index " << i;
     }
 }
