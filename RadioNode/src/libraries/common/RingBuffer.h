@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <mutex>
 #include <iostream>
+#include <string.h>
 /*
    T must implement operator=, copy ctor
 */

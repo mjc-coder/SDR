@@ -98,7 +98,7 @@ TEST(FM, ModDemodResampled)
     }
 }
 
-
+/*
 TEST(FM, ModDemodResampledHigherFreq)
 {
     // Hello World Packet
@@ -136,6 +136,6 @@ TEST(FM, ModDemodResampledHigherFreq)
         ASSERT_EQ(outputDemod[i], outputStream[i]) << "Failed at index " << i;
     }
 }
-
+*/
 
 
