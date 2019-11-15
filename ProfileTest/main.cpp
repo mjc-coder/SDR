@@ -36,7 +36,7 @@
 
 
 
-#define MAX 200
+#define MAX 100
 
 int main(int argc, char *argv[])
 {
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     std::ofstream fout_gpu_fm("GPU_FM.dat", std::ios::out | std::ios::trunc);
 
     am_gpu_initialize(BufferSize*MAX, 1);
-    fm_gpu_initialize(1, MAX*BufferSize, 2000000, 100, 10, 20);
+
 
 
     // Quick Qual check,  make sure each of the functions matches eachother
@@ -84,8 +84,9 @@ int main(int argc, char *argv[])
         delete[] OUTPUT_CPU;
         delete[] OUTPUT_GPU;
     }
+    am_gpu_free();
 
-
+    fm_gpu_initialize(1, MAX*BufferSize, 2000000, 100, 10, 20);
     // Quick Qual check,  make sure each of the functions matches eachother
     {
         RADIO_DATA_TYPE* Buffer_input = new RADIO_DATA_TYPE[BufferSize*MAX];
@@ -115,7 +116,8 @@ int main(int argc, char *argv[])
         delete[] OUTPUT_GPU;
     }
 
-
+    fm_gpu_free();
+    am_gpu_initialize(BufferSize*MAX, 1);
 
     // initialize Buffer array
     // initialize array
@@ -154,8 +156,8 @@ int main(int argc, char *argv[])
         std::cerr << "[Calc Time " << calc << "] " << " Total Time " << time_span.count() << std::endl;
         fout_gpu_am << i*BufferSize << ',' << time_span.count() << ',' << calc << ',' << std::endl;
     }
-
-
+    am_gpu_free();
+    fm_gpu_initialize(1, MAX*BufferSize, 2000000, 100, 10, 20);
     for(int i = 1; i <= MAX; i++)
     {
         std::cerr << "Demodulating [FM][CPU][" << i << "][" << BufferSize*i << "]";
@@ -185,10 +187,10 @@ int main(int argc, char *argv[])
 
         duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
         std::cerr << "[Calc Time " << calc << "] " << " Total Time " << time_span.count() << std::endl;
-        fout_gpu_am << i*BufferSize << ',' << time_span.count() << ',' << calc << ',' << std::endl;
+        fout_gpu_fm << i*BufferSize << ',' << time_span.count() << ',' << calc << ',' << std::endl;
     }
 
-    am_gpu_free();
+
     fm_gpu_free();
 
     delete[] Buffer;
