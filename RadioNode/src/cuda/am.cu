@@ -80,36 +80,64 @@ __global__ void kernel_am_demod(RADIO_DATA_TYPE* x, RADIO_DATA_TYPE* y, uint8_t*
     }
 }
 
-extern "C"
-double am_gpu_demodulation(RADIO_DATA_TYPE* real, RADIO_DATA_TYPE* imag, uint8_t* output, size_t number_of_points, size_t ds)
+
+struct am_gpu_variables
 {
     RADIO_DATA_TYPE* dev_real;
     RADIO_DATA_TYPE* dev_imag;
     uint8_t* dev_output;
+};
 
-    cudaMalloc((void**)&dev_real,   number_of_points*sizeof(RADIO_DATA_TYPE));
-    cudaMalloc((void**)&dev_imag,   number_of_points*sizeof(RADIO_DATA_TYPE));
-    cudaMalloc((void**)&dev_output, number_of_points*sizeof(uint8_t));
+am_gpu_variables* am_gpu_vars;
+size_t g_num_am_radios;
 
+extern "C"
+void am_gpu_initialize(size_t MAX_NUM_POINTS, size_t num_of_radios = 1)
+{
+    g_num_am_radios = num_of_radios;
+    am_gpu_vars = new am_gpu_variables[num_of_radios];
+    for(int i = 0; i < num_of_radios; i++)
+    {
+        cudaMalloc((void**)&am_gpu_vars[i].dev_real,   MAX_NUM_POINTS*sizeof(RADIO_DATA_TYPE));
+        cudaMalloc((void**)&am_gpu_vars[i].dev_imag,   MAX_NUM_POINTS*sizeof(RADIO_DATA_TYPE));
+        cudaMalloc((void**)&am_gpu_vars[i].dev_output, MAX_NUM_POINTS*sizeof(uint8_t));
+    }
+}
 
-    cudaMemcpy(dev_real, real, number_of_points*sizeof(RADIO_DATA_TYPE), cudaMemcpyHostToDevice);
-    cudaMemcpy(dev_imag, imag, number_of_points*sizeof(RADIO_DATA_TYPE), cudaMemcpyHostToDevice);
+extern "C"
+void am_gpu_free()
+{
+    for(int i = 0; i < g_num_am_radios; i++)
+    {
+        cudaFree(am_gpu_vars[i].dev_real);
+        cudaFree(am_gpu_vars[i].dev_imag);
+        cudaFree(am_gpu_vars[i].dev_output);
+    }
+    delete[] am_gpu_vars;
+}
 
-    int threadsPerBlock = 1024;
+extern "C"
+double am_gpu_demodulation(int RADIO_ID, RADIO_DATA_TYPE* real, RADIO_DATA_TYPE* imag, uint8_t* output, size_t number_of_points, size_t ds)
+{
+    // load variables into GPU
+    cudaMemcpy(am_gpu_vars[RADIO_ID].dev_real, real, number_of_points*sizeof(RADIO_DATA_TYPE), cudaMemcpyHostToDevice);
+    cudaMemcpy(am_gpu_vars[RADIO_ID].dev_imag, imag, number_of_points*sizeof(RADIO_DATA_TYPE), cudaMemcpyHostToDevice);
+
+    const int threadsPerBlock = 1024;
     int blocksPerGrid =(number_of_points + threadsPerBlock - 1) / threadsPerBlock;
 
 
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
     // call kernel
-    kernel_am_demod<<<blocksPerGrid, threadsPerBlock>>>( dev_real, dev_imag, dev_output, number_of_points, ds);
+    kernel_am_demod<<<blocksPerGrid, threadsPerBlock>>>( am_gpu_vars[RADIO_ID].dev_real, am_gpu_vars[RADIO_ID].dev_imag, am_gpu_vars[RADIO_ID].dev_output, number_of_points, ds);
     cudaDeviceSynchronize();
 
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
 
-
-    cudaMemcpy(output, dev_output, number_of_points*sizeof(uint8_t), cudaMemcpyDeviceToHost); // pull data back
+    // only pull back what we need
+    cudaMemcpy(output, am_gpu_vars[RADIO_ID].dev_output, number_of_points/ds, cudaMemcpyDeviceToHost);
 
 
     if ( cudaSuccess != cudaGetLastError() )
@@ -117,9 +145,6 @@ double am_gpu_demodulation(RADIO_DATA_TYPE* real, RADIO_DATA_TYPE* imag, uint8_t
         std::cout << "[CUDA][am_gpu_demodulation] Error!" << std::endl;
     }
 
-    cudaFree(dev_real);
-    cudaFree(dev_imag);
-    cudaFree(dev_output);
 
     duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
 

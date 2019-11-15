@@ -142,12 +142,15 @@
         <double>0.100000000000000</double>
        </property>
        <property name="value">
-        <double>100.000000000000000</double>
+        <double>800.000000000000000</double>
        </property>
       </widget>
      </item>
      <item row="7" column="1">
       <widget class="QComboBox" name="m_encoding_scheme">
+       <property name="currentText">
+        <string>AM</string>
+       </property>
        <item>
         <property name="text">
          <string>All Zeros</string>
@@ -316,7 +319,7 @@
         <double>47.000000000000000</double>
        </property>
        <property name="value">
-        <double>0.000000000000000</double>
+        <double>20.000000000000000</double>
        </property>
       </widget>
      </item>

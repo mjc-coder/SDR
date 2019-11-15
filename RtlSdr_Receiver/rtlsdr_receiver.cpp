@@ -80,11 +80,30 @@ enum PLOT_ENUM
 
 
 #ifdef GPU_ENABLED
+
     extern "C"
-    double am_gpu_demodulation(RADIO_DATA_TYPE* real, RADIO_DATA_TYPE* imag, uint8_t* output, size_t number_of_points, size_t ds);
+    void am_gpu_initialize(size_t MAX_NUM_POINTS, size_t num_of_radios);
+
+    extern "C"
+    void am_gpu_free();
+
+    extern "C"
+    double am_gpu_demodulation(int RADIO_ID, RADIO_DATA_TYPE* real, RADIO_DATA_TYPE* imag, uint8_t* output, size_t number_of_points, size_t ds);
 
     extern "C"
     int32_t ones_zeros_demodulation(RADIO_DATA_TYPE* real, RADIO_DATA_TYPE* imag, size_t number_of_points);
+
+    extern "C"
+    void fm_gpu_initialize(size_t num_of_radios, size_t MaxBufferSize, size_t rx_sample_rate, size_t ds, double MARK_FREQ, double SPACE_FREQ);
+
+    extern "C"
+    void fm_gpu_free();
+
+    extern "C"
+    void fm_gpu_set_samples_per_bit(size_t samples_per_bit);
+
+    extern "C"
+    double fm_gpu_demodulation(int RADIO_ID, RADIO_DATA_TYPE* real, RADIO_DATA_TYPE* imag, uint8_t* output, size_t number_of_points, size_t ds);
 #endif
 
 static RtlSdr_Receiver* m_GlobalPtr;
@@ -119,7 +138,7 @@ RtlSdr_Receiver::RtlSdr_Receiver(QWidget *parent)
 , m_pkt_cnt(0)
 , m_actual_samples_per_second(0)
 , m_actual_bits_per_second(0)
-, m_mode(Radio_RTLSDR::ZEROS)
+, m_mode(Radio_RTLSDR::AM)
 , m_bps(100000)
 , m_validPacket(false)
 , m_validCRC(false)
@@ -166,6 +185,8 @@ void RtlSdr_Receiver::Initialize()
     ui->m_gain->setRange(0, 47);
     std::cout << "...." << m_SampleRate << "  " << m_NumPoints << std::endl;
 
+    am_gpu_initialize(m_SampleRate, MAX_NUM_RADOIS);
+    fm_gpu_initialize(MAX_NUM_RADOIS, m_SampleRate, 2000000, m_SampleRate, 19000, 20000);
     // create demodulation threads
     for(int i = 0; i < MAX_NUM_RADOIS; i++)
     {
@@ -477,6 +498,9 @@ RtlSdr_Receiver::~RtlSdr_Receiver()
     }
 
     delete m_plot_xvector;
+
+    am_gpu_free();
+    fm_gpu_free();
 
     if(ui)
     {
@@ -1693,6 +1717,7 @@ void RtlSdr_Receiver::on_pushButton_clicked()
     {
         // Configure GPU Demodulation
         m_cpu_vs_gpu = true;
+        fm_gpu_set_samples_per_bit(2000000/m_bps); // fm needs to be recalculated when bps changes
     }
 }
 
@@ -1702,7 +1727,6 @@ void RtlSdr_Receiver::radio_search()
     ui->m_radio_list->clear();
     ui->m_radio_list->addItem(QString("None Detected"));
 
-    ui->m_gain->setValue(14);
     // RTLSDR
     if(rtlsdr_get_device_count() > 0)
     {
@@ -1742,9 +1766,6 @@ void RtlSdr_Receiver::radio_search()
     ui->m_radio_list->addItem(QString("Initialize N Radios"));
     ui->m_radio_list->addItem(QString("Initialize All Radios"));
     ui->m_radio_list->addItem(QString("Run Performance Tests"));
-
-
-    ui->m_decoding_scheme->setCurrentIndex(0);
 }
 
 void RtlSdr_Receiver::on_pushButton_2_clicked()
@@ -1829,6 +1850,7 @@ void RtlSdr_Receiver::on_pushButton_2_clicked()
     {
         // Configure GPU Demodulation
         m_cpu_vs_gpu = true;
+        fm_gpu_set_samples_per_bit(2000000/m_bps); // fm needs to be recalculated when bps changes
     }
 }
 
@@ -1992,7 +2014,7 @@ void RtlSdr_Receiver::demodulateData(int RADIO_ID)
                     std::cout << "GPU Demodulation" << std::endl;
     #ifdef GPU_ENABLED
                    m_block_lock[RADIO_ID].lock();
-                   am_gpu_demodulation(block_x, block_y, m_data_buffer[RADIO_ID], m_SampleRate/2, samples_per_bit);
+                   am_gpu_demodulation(RADIO_ID, block_x, block_y, m_data_buffer[RADIO_ID], m_SampleRate/2, samples_per_bit);
                    read_number_of_bits = (m_SampleRate/2)/samples_per_bit;
                    m_block_lock[RADIO_ID].unlock();
     #endif

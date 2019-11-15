@@ -9,8 +9,8 @@ Hackrf_Transmitter::Hackrf_Transmitter(QWidget *parent)
 , agc(false)
 , freq(800)
 , bps(100000)
-, lna(0)
-, m_mode(HackRF_radio::ZEROS)
+, lna(20)
+, m_mode(HackRF_radio::AM)
 , m_data_type(USER)
 {
     ui->setupUi(this);

@@ -76,10 +76,12 @@ SOURCES += \
     main.cpp \
     rtlsdr_receiver.cpp \
     ../RadioNode/src/cuda/am.cu \
+    ../RadioNode/src/cuda/fm.cu \
     ../RadioNode/src/cuda/ones_zeros.cu \
     system_usage.cpp
 
 SOURCES -= ../RadioNode/src/cuda/am.cu \
+           ../RadioNode/src/cuda/fm.cu \
            ../RadioNode/src/cuda/ones_zeros.cu
 
 HEADERS += \
@@ -148,7 +150,7 @@ MACOSX {
     DESTDIR     = $$system(pwd)
     OBJECTS_DIR = $$DESTDIR/Obj
     QMAKE_CXXFLAGS_RELEASE =-O3
-    CUDA_SOURCES += ../RadioNode/src/cuda/am.cu ../RadioNode/src/cuda/ones_zeros.cu
+    CUDA_SOURCES += ../RadioNode/src/cuda/am.cu ../RadioNode/src/cuda/ones_zeros.cu ../RadioNode/src/cuda/fm.cu
     CUDA_DIR      = /usr/local/cuda
     INCLUDEPATH  += $$CUDA_DIR/include /usr/include/aarch64-linux-gnu/qt5/ /usr/include/aarch64-linux-gnu/qt5/QtCore/ $$INCLUDEPATH
     QMAKE_LIBDIR += $$CUDA_DIR/lib64
@@ -167,11 +169,13 @@ MACOSX {
 
     DISTFILES += \
         ../RadioNode/src/cuda/ones_zeros.cu \
+        ../RadioNode/src/cuda/fm.cu \
         ../RadioNode/src/cuda/am.cu
 }
 
 DISTFILES += \
-    ../RadioNode/src/cuda/ones_zeros.cu
+    ../RadioNode/src/cuda/ones_zeros.cu \
+    ../RadioNode/src/cuda/fm.cu \
     ../RadioNode/src/cuda/am_copy.cu
 
 

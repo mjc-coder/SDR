@@ -67,7 +67,7 @@ public:
 
     // INPUT 1 - Read Data
     // INPUT 2 - Pulse SHAPE
-    void convolve(const data_type* input1, size_t length1, const data_type* input2, size_t length2, data_type* output, size_t lengthOutput)
+    void convolve(const data_type* input1, size_t length1, const data_type* input2, size_t length2, data_type* output, size_t lengthOutput, size_t ds)
     {
         RADIO_DATA_TYPE* real_data = new RADIO_DATA_TYPE[length1+(length2*2)];  // Upsample 8, and include forward buffer for convolution
         memset(real_data, 0, (length1+(length2*2))*sizeof(RADIO_DATA_TYPE));
@@ -78,11 +78,11 @@ public:
             real_data[i+length2] = input1[i];
         }
 
-        for(size_t i = 0; i < length1; i++) 
-	{
+        for(size_t i = ds-1, outputIndex = 0; i < length1; i+=ds, outputIndex++)
+        {
             for (size_t j = 0; j < length2; j++) 
             {
-                output[i] += real_data[i + length2 - j] * input2[length2 - j - 1];
+                output[outputIndex] += real_data[i + length2 - j] * input2[length2 - j - 1];
             }
         }
 
@@ -98,10 +98,10 @@ public:
         data_type* WAVE2 = new RADIO_DATA_TYPE[ds];
         data_type* op1 = new RADIO_DATA_TYPE[number_of_points+2*ds];
         data_type* op2 = new RADIO_DATA_TYPE[number_of_points+2*ds];
-	memset(WAVE1, 0, ds);
-	memset(WAVE1, 0, ds);
-	memset(op1, 0, number_of_points+2*ds);
-	memset(op2, 0, number_of_points+2*ds);
+        memset(WAVE1, 0, ds);
+        memset(WAVE1, 0, ds);
+        memset(op1, 0, number_of_points+2*ds);
+        memset(op2, 0, number_of_points+2*ds);
 
         const double delta_t = 1.0/m_rx_sample_rate;
         // Generate Mark and Space convolution waves
@@ -112,13 +112,13 @@ public:
         }
 
         // convolution 1 is input with WAVE 1
-        convolve(real, number_of_points, WAVE1, ds, op1, number_of_points);
-        convolve(real, number_of_points, WAVE2, ds, op2, number_of_points);
+        convolve(real, number_of_points, WAVE1, ds, op1, number_of_points,ds);
+        convolve(real, number_of_points, WAVE2, ds, op2, number_of_points,ds);
 
 
-        for(size_t i = ds-1, j = 0; i < number_of_points; i+=ds, j++)
+        for(size_t i = 0; i < number_of_points; i++)
         {
-            output[j] = (op1[i] > op2[i]) ? 1:0;
+            output[i] = (op1[i] > op2[i]) ? 1:0;
         }
 
         delete[] WAVE1;
