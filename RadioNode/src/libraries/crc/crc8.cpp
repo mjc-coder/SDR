@@ -1,6 +1,5 @@
-//
-// Created by Micheal Cowan on 9/14/19.
-//
+/// @file SDR/RadioNode/src/libraries/crc/crc.cpp
+
 
 #include <crc/crc8.h>
 #include <iostream>

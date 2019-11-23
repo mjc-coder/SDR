@@ -1,9 +1,6 @@
-//
-// Created by Micheal Cowan on 10/25/19.
-//
+/// @file SDR/RadioNode/src/libraries/arduino_if/Arduino_IF.h
 
 #include <arduino_if/Arduino_IF.h>
-
 
 Arduino_IF::Arduino_IF(const char* serial_if)
 : serial_port(0)

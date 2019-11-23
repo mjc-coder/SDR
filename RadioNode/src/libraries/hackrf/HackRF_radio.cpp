@@ -1,6 +1,4 @@
-//
-// Created by Micheal Cowan on 2019-08-04.
-//
+/// @file SDR/RadioNode/src/libraries/hackrf/HackRF_radio.cpp
 
 #include <hackrf/HackRF_radio.h>
 #include <DigitalSignalProcessing/Resample.h>
