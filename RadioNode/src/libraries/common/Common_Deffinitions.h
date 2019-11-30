@@ -1,6 +1,4 @@
-//
-// Created by Micheal Cowan on 9/7/19.
-//
+/// @file SDR/RadioNode/src/libraries/common/Common_Deffinitions.h
 
 #ifndef RADIONODE_COMMON_DEFFINITIONS_H
 #define RADIONODE_COMMON_DEFFINITIONS_H
@@ -22,5 +20,20 @@ const RADIO_DATA_TYPE PI = 3.141592653589793238460;                         ///>
 
 /// Block Read Size -- 65536 Samples / 32768 Points / 131072 bytes
 #define BLOCK_READ_SIZE 240000/2
+
+/// \brief Hardware decoding type
+enum HardwareType
+{
+    CPU,    ///< Central Processing Unit
+    GPU     ///< Graphical Processing Unit
+};
+
+/// \brief Auto or Manual AGC Gain Mode.
+/// \details Most usage is in fully manual mode.
+enum GainMode
+{
+    Auto,
+    Manual
+};
 
 #endif //RADIONODE_COMMON_DEFFINITIONS_H

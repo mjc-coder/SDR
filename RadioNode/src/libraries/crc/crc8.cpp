@@ -1,4 +1,4 @@
-/// @file SDR/RadioNode/src/libraries/crc/crc.cpp
+/// @file SDR/RadioNode/src/libraries/crc/crc8.cpp
 
 
 #include <crc/crc8.h>

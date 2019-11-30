@@ -1,4 +1,4 @@
-/// @file SDR/RadioNode/src/libraries/crc/crc.h
+/// @file SDR/RadioNode/src/libraries/crc/crc8.h
 
 
 #ifndef RADIONODE_CRC8_H

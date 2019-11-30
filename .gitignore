@@ -1,4 +1,8 @@
-*/*.idea
-*/*.info
-*/*.tmp
-*/*.dat
+*.idea
+*.info
+*.tmp
+*.dat
+*.gcda
+*.gcno
+dst
+*.DS_Store

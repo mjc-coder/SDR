@@ -1,6 +1,5 @@
-//
-// Created by Micheal Cowan on 2019-07-14.
-//
+/// @file SDR/RadioNode/src/libraries/network/UDP_Blaster.cpp
+
 
 #include <network/UDP_Blaster.h>
 #include <iostream>

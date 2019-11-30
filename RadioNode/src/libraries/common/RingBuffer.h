@@ -1,77 +1,90 @@
-//
-// Created by Micheal Cowan on 10/10/19.
-//
+/// @file SDR/RadioNode/src/libraries/common/RingBuffer.h
+
 
 #ifndef RADIONODE_RINGBUFFER_H
 #define RADIONODE_RINGBUFFER_H
-
 
 #include <string>
 #include <stdexcept>
 #include <mutex>
 #include <iostream>
-/*
-   T must implement operator=, copy ctor
-*/
+
+/// \brief Templated Ring Buffer class
+/// \tparam T Buffer Type must implement copy constructor.
 template<typename T>
 class RingBuffer
 {
 public:
-    /// constructor
+    /// \brief Constructor
+    /// \param size Number of elements to create ring buffer with.
     RingBuffer(int size);
 
-    /// destructor
+    /// \brief Destructor
     ~RingBuffer();
 
-    /// Check if empty
+    /// \brief Check if empty
+    /// \returns true if empty, false otherwise.
     bool empty() const
     {
         return m_count == 0;
     }
 
-    /// check if full
+    /// \brief Check if full
+    /// \returns true if full, false otherwise.
     bool full() const
     {
         return m_count == m_size;
     }
 
-    /// Append an element
+    /// \brief Append an element
+    /// \returns true if successful, false otherwise
     bool append(const T&);
 
-    /// append a Group of elements
+    /// \brief append a Group of elements
     /// @param[in] elem  list of elements
-    /// @param[in] len   number of elements to add
-    ///
-    /// \return number of elements added
+    /// @param[in] len   number of elements to append
+    /// \returns number of elements added
     size_t append(const T* elem, size_t len);
 
-    /// pops first element
+    /// \brief pops first element
+    /// \returns if element was removed
     bool remove();
 
-    /// removes N elements from the front
+    /// \brief removes N elements from the front
+    /// \param number of elements to remove
+    /// \returns true if successful, false otherwise
     bool remove(size_t len);
 
+    /// \brief Get the number of elements in the buffer
+    /// \return zero based number of elements.
     size_t count() const
     {
         return m_count;
     }
 
+    /// \brief Get the size of the ring buffer
+    /// \return Max number of elements in the ring buffer
     size_t max() const
     {
         return m_size;
     }
 
+    /// \brief Get the number of elements in the right buffer
+    /// \return Number of elements in the buffer.
     size_t num_elements() const
     {
         return m_count+1;
     }
 
-
+    /// \brief Get the value at the given position
+    /// \param pos The given index in the array. Must be less than the max, and is 0 based.
+    /// \return Returns the value.
     T value(int pos) const
     {
         return m_data[(m_front + pos)%m_size];
     }
 
+    /// \brief Reset the buffer and clear the values.
     void reset()
     {
         m_lock.lock();
@@ -82,14 +95,18 @@ public:
     }
 
 private:
-    RingBuffer() = delete;
-    const int m_size;
-    int m_count;
-    int m_front;
-    std::mutex m_lock;
-    T* m_data;
+    RingBuffer() = delete;  ///< disallow the basic constructor
+    const int m_size;   ///< The max size of the Ring Buffer.
+    int m_count;    ///< Current count of items in buffer.
+    int m_front;    ///< Front index of the buffer.
+    std::mutex m_lock;  ///< Buffer Lock for thread safety
+    T* m_data;  ///< Buffer Data array.
 };
 
+
+/// \brief Constructor
+/// \tparam T Buffer Type
+/// \param sz Size of the ring buffer
 template<typename T>
 RingBuffer<T>::RingBuffer(int sz): m_size(sz)
 {
@@ -103,14 +120,18 @@ RingBuffer<T>::RingBuffer(int sz): m_size(sz)
 
 }
 
-
+/// \brief Destructor
+/// \tparam T Buffer Type
 template<typename T>
 RingBuffer<T>::~RingBuffer()
 {
     delete[] m_data;
 }
 
-// returns true if add was successful, false if the buffer is already full
+/// \brief Append an element to the buffer.
+/// \tparam T Buffer Type
+/// \param t value to append.
+/// \return true if successful, false otherwise.
 template<typename T>
 bool RingBuffer<T>::append(const T &t)
 {
@@ -128,6 +149,11 @@ bool RingBuffer<T>::append(const T &t)
     return returnVal;
 }
 
+/// \brief Append multiple elements from an array
+/// \tparam T   Buffer Type
+/// \param elem Element array of type Buffer Type
+/// \param len  Number of elements ot append
+/// \return Number of elements actually appended to the buffer.
 template<typename T>
 size_t RingBuffer<T>::append(const T* elem, size_t len)
 {
@@ -145,7 +171,9 @@ size_t RingBuffer<T>::append(const T* elem, size_t len)
     return len;
 }
 
-// returns true if there is something to remove, false otherwise
+/// \brief Remove first element in the Buffer
+/// \tparam T Buffer Type
+/// \return True if successful, false otherwise.
 template<typename T>
 bool RingBuffer<T>::remove()
 {
@@ -168,6 +196,10 @@ bool RingBuffer<T>::remove()
     return returnVal;
 }
 
+/// \brief Remove one or more elements from the buffer.
+/// \tparam T Buffer Type
+/// \param len Number of elements to remove
+/// \return true if all elements were removed, falst if it failed.
 template<typename T>
 bool RingBuffer<T>::remove(size_t len)
 {
