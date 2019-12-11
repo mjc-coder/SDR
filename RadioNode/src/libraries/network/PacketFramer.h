@@ -13,7 +13,7 @@
 
 
 
-
+/// \brief Default Unique word for Packet Framer Class
 const uint8_t PACKET_FRAMER_UNIQUE_WORD[16] =
         {1,1,1,1,1,0,1,0,
          1,1,0,0,1,1,1,0};
@@ -40,7 +40,7 @@ public:
     static constexpr size_t MAX_BYTES_DATA = 250; ///< Max Data size in bytes before conversion
     static constexpr size_t UNIQUE_WORD_SIZE_BIT = 16;  ///< Unique Word Size in Bits
     static constexpr size_t UNIQUE_WORD_SIZE_BYTE = 2;  ///< Unique Word Size in Bytes
-    static constexpr size_t UNIQUE_WORD_POS = 0; /// Unique word Position in Bit expanded packet
+    static constexpr size_t UNIQUE_WORD_POS = 0; ///< Unique word Position in Bit expanded packet
     static constexpr size_t LENGTH_SIZE_BIT = 8; ///< Length field of the packet in bits
     static constexpr size_t LENGTH_SIZE_BYTE = 1; ///< Length field of the packet in bytes
     static constexpr size_t LENGTH_POS = UNIQUE_WORD_POS + UNIQUE_WORD_SIZE_BIT; ///< Lenght field position in bit packet
@@ -512,6 +512,10 @@ public:
         return MAX_PKT_SIZE_BYTE; // Signal that we need to remove the whole packet from the buffer
     }
 
+    /// \brief Convert 8 bits at index to a byte.
+    /// \param buffer Input bit bugger
+    /// \param index Bit index in the array
+    /// \return Byte value from the bit stream.
     static inline uint8_t ToByte(data_type* buffer, size_t index)
     {
         uint8_t c = 0;
@@ -526,7 +530,10 @@ public:
         return c;
     }
 
-    /// Convert 8 bits at index to a byte.
+    /// \brief Convert 8 bits at index to a byte.
+    /// \param buffer Input Bit Buffer
+    /// \param index Bit index in the array
+    /// \return Byte value from the bit stream
     static inline uint8_t ToByte(RingBuffer<data_type>& buffer, size_t index)
     {
         uint8_t c = 0;

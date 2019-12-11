@@ -40,10 +40,10 @@ public:
     void operator--();
 
     /// \brief Increment the counter by one.
-    void operator++(int32_t);
+    void operator++(int);
 
     /// \brief Decrement the counter by one.
-    void operator--(int32_t);
+    void operator--(int);
 
     /// \brief Decrement the counter by a value
     /// \param dec  Decrement by this value

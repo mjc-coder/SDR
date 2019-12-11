@@ -12,6 +12,7 @@
 using namespace std;
 
 #ifndef SIGN_FUNC
+/// Defines the SIGN function.  val > 0 = 1 or val < 0 = -1 or val = 0 then 0
 #define SIGN_FUNC(val) (( val == 0.0 ) ? 0.0 : ( (val < 0.0) ? -1.0 : 1.0))
 #endif
 
@@ -55,7 +56,7 @@ public:
 
     /// \brief Demodulate the complex stream of data.
     /// \param input input stream of complex data
-    /// \param outputdemodulated output stream of complex data
+    /// \param output output stream of complex data
     void demodulate(BBP_Block* input, BBP_Block* output);
 
     /// \brief Encodes the input stream of bits from 0's and 1's to -1's and 1's respectively.
@@ -105,7 +106,7 @@ public:
         RADIO_DATA_TYPE mu; ///< Mu Value
         RADIO_DATA_TYPE I; ///< I Value
         RADIO_DATA_TYPE Q; ///< Q Value
-        RADIO_DATA_TYPE muDelay; /// Mu Delay Value
+        RADIO_DATA_TYPE muDelay; ///< Mu Delay Value
 
         /// \brief Constructor / Struct Initializer
         SymbolTimingSynchronizationVars()
@@ -271,22 +272,20 @@ public:
     }
 
     /// Other variables
-    RADIO_DATA_TYPE* m_RealData;
-    RADIO_DATA_TYPE* m_ImagData;
-    size_t m_length;
-    RADIO_DATA_TYPE normalization_max;
-    PhaseAmbiguity m_phase_ambiguity_shift;
-    confidence_counter m_phase_ambiguity_cc_000;
-    confidence_counter m_phase_ambiguity_cc_090;
-    confidence_counter m_phase_ambiguity_cc_180;
-    confidence_counter m_phase_ambiguity_cc_270;
-    RADIO_DATA_TYPE m_differential_decode_delay;
-    size_t UW_SIZE; // Size is the same for all
-    RADIO_DATA_TYPE uw_000[64];
-    RADIO_DATA_TYPE uw_090[64];
-    RADIO_DATA_TYPE uw_180[64];
-    RADIO_DATA_TYPE uw_270[64];
+    RADIO_DATA_TYPE* m_RealData; ///< Internal Real Data Array
+    RADIO_DATA_TYPE* m_ImagData; ///< Internal Imag Data Array
+    size_t m_length; ///< Internal Array Length
+    RADIO_DATA_TYPE normalization_max; ///< Normalization Max value
+    confidence_counter m_phase_ambiguity_cc_000; ///< Confidence counter for 0 degree phase shift
+    confidence_counter m_phase_ambiguity_cc_090; ///< Confidence counter for 90 degree phase shift
+    confidence_counter m_phase_ambiguity_cc_180; ///< Confidence counter for 180 degree phase shift
+    confidence_counter m_phase_ambiguity_cc_270; ///< Confidence counter for 270 degree phase shift
+    RADIO_DATA_TYPE m_differential_decode_delay; ///< Differential Decode delay value
+    size_t UW_SIZE; ///< Size is the same for all phase shifts of the unique word
+    RADIO_DATA_TYPE uw_000[64]; ///< Unique word 0 degree phase shift
+    RADIO_DATA_TYPE uw_090[64]; ///< Unique word 90 degree phase shift
+    RADIO_DATA_TYPE uw_180[64]; ///< Unique word 180 degree phase shift
+    RADIO_DATA_TYPE uw_270[64]; ///< Unique word 270 degree phase shift
 };
-
 
 #endif //RADIONODE_QPSK_H

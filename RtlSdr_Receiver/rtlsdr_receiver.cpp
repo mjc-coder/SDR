@@ -110,7 +110,7 @@ void RtlSdr_Receiver::AM_OverProcess_Callback(size_t thread_id, size_t samples_p
 
     if(!m_GlobalPtr->m_cpu_vs_gpu) // CPU demodulation
     {
-        read_number_of_bits = m_GlobalPtr->m_am[RADIO_ID]->demodulate(block_x, block_y, data_buffer, m_GlobalPtr->m_SampleRate/2, samples_per_bit, m_GlobalPtr->m_bps);
+        read_number_of_bits = m_GlobalPtr->m_am[RADIO_ID]->demodulate(block_x, block_y, data_buffer, m_GlobalPtr->m_SampleRate/2, samples_per_bit);
     }
     else
     {
@@ -2036,7 +2036,7 @@ void RtlSdr_Receiver::demodulateData(int RADIO_ID)
             if(!m_cpu_vs_gpu) // CPU demodulation
             {
                 m_block_lock[RADIO_ID].lock();
-                read_number_of_bits = m_GlobalPtr->m_am[RADIO_ID]->demodulate(m_block_x[RADIO_ID]->data(), m_block_y[RADIO_ID]->data(), m_data_buffer[RADIO_ID], m_GlobalPtr->m_SampleRate/2, samples_per_bit, m_GlobalPtr->m_bps);
+                read_number_of_bits = m_GlobalPtr->m_am[RADIO_ID]->demodulate(m_block_x[RADIO_ID]->data(), m_block_y[RADIO_ID]->data(), m_data_buffer[RADIO_ID], m_GlobalPtr->m_SampleRate/2, samples_per_bit);
                 m_block_lock[RADIO_ID].unlock();
             }
             else

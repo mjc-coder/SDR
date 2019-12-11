@@ -18,12 +18,13 @@
 
 using namespace std;
 
-
+/// \brief Hack RF Wrapper to extract functionality into a simpler c++ interface
 class HackRF_radio
 {
 public:
     static uint64_t unique_word[]; ///< 0xDEAD 0xBEEF 0xG00D 0xF00D
 
+    /// \brief HackRF Transmit Mode Enumeration
     enum HACKRF_MODE
     {
         ZEROS = 0,                  ///< Transmit all Zeros

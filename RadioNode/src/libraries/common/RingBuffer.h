@@ -16,11 +16,24 @@ class RingBuffer
 {
 public:
     /// \brief Constructor
-    /// \param size Number of elements to create ring buffer with.
-    RingBuffer(int size);
+    /// \param sz Number of elements to create ring buffer with.
+    RingBuffer(int sz)
+    : m_size(sz)
+    {
+        if (sz==0) {
+            throw std::invalid_argument("size cannot be zero");
+        }
+        m_data = new T[sz];
+        memset((void*)m_data, 0 , sz*sizeof(T));
+        m_front = 0;
+        m_count = 0;
+    }
 
     /// \brief Destructor
-    ~RingBuffer();
+    ~RingBuffer()
+    {
+        delete[] m_data;
+    }
 
     /// \brief Check if empty
     /// \returns true if empty, false otherwise.
@@ -37,23 +50,85 @@ public:
     }
 
     /// \brief Append an element
+    /// \param t Value to append
     /// \returns true if successful, false otherwise
-    bool append(const T&);
+    bool append(const T& t)
+    {
+        bool returnVal = false;
+
+        if ( !full() )
+        {
+            // find index where insert will occur
+            m_lock.lock();
+            m_data[(m_front + m_count) % m_size] = t;
+            m_count++;
+            m_lock.unlock();
+            returnVal = true;
+        }
+        return returnVal;
+    }
 
     /// \brief append a Group of elements
-    /// @param[in] elem  list of elements
-    /// @param[in] len   number of elements to append
+    /// \param elem  list of elements
+    /// \param len   number of elements to append
     /// \returns number of elements added
-    size_t append(const T* elem, size_t len);
+    size_t append(const T* elem, size_t len)
+    {
+        if(!full())
+        {
+            // find index where insert will occur
+            for(size_t i = 0; i < len; i++)
+            {
+                if( !append(elem[i]) )
+                {
+                    return i;
+                }
+            }
+        }
+        return len;
+    }
 
     /// \brief pops first element
     /// \returns if element was removed
-    bool remove();
+    bool remove()
+    {
+        bool returnVal = false;
+
+        if ( !empty() )
+        {
+            m_lock.lock();
+            if(m_front == m_size)
+            {
+                m_front = 0;
+            }
+            m_data[m_front] = 0;
+            m_front = (m_front == m_size) ? 0 : m_front + 1; // reset front
+            m_count--;
+            m_lock.unlock();
+            returnVal = true;
+        }
+
+        return returnVal;
+    }
 
     /// \brief removes N elements from the front
-    /// \param number of elements to remove
+    /// \param len number of elements to remove
     /// \returns true if successful, false otherwise
-    bool remove(size_t len);
+    bool remove(size_t len)
+    {
+        if ( !empty() )
+        {
+            for(size_t i = 0; i < len; i++)
+            {
+                if(!remove())
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 
     /// \brief Get the number of elements in the buffer
     /// \return zero based number of elements.
@@ -100,121 +175,9 @@ private:
     int m_count;    ///< Current count of items in buffer.
     int m_front;    ///< Front index of the buffer.
     std::mutex m_lock;  ///< Buffer Lock for thread safety
-    T* m_data;  ///< Buffer Data array.
+    T* m_data;  ///< Buffer data array.
 };
 
 
-/// \brief Constructor
-/// \tparam T Buffer Type
-/// \param sz Size of the ring buffer
-template<typename T>
-RingBuffer<T>::RingBuffer(int sz): m_size(sz)
-{
-    if (sz==0) {
-        throw std::invalid_argument("size cannot be zero");
-    }
-    m_data = new T[sz];
-    memset((void*)m_data, 0 , sz*sizeof(T));
-    m_front = 0;
-    m_count = 0;
-
-}
-
-/// \brief Destructor
-/// \tparam T Buffer Type
-template<typename T>
-RingBuffer<T>::~RingBuffer()
-{
-    delete[] m_data;
-}
-
-/// \brief Append an element to the buffer.
-/// \tparam T Buffer Type
-/// \param t value to append.
-/// \return true if successful, false otherwise.
-template<typename T>
-bool RingBuffer<T>::append(const T &t)
-{
-    bool returnVal = false;
-
-    if ( !full() )
-    {
-        // find index where insert will occur
-        m_lock.lock();
-        m_data[(m_front + m_count) % m_size] = t;
-        m_count++;
-        m_lock.unlock();
-        returnVal = true;
-    }
-    return returnVal;
-}
-
-/// \brief Append multiple elements from an array
-/// \tparam T   Buffer Type
-/// \param elem Element array of type Buffer Type
-/// \param len  Number of elements ot append
-/// \return Number of elements actually appended to the buffer.
-template<typename T>
-size_t RingBuffer<T>::append(const T* elem, size_t len)
-{
-    if(!full())
-    {
-        // find index where insert will occur
-        for(size_t i = 0; i < len; i++)
-        {
-            if( !append(elem[i]) )
-            {
-                return i;
-            }
-        }
-    }
-    return len;
-}
-
-/// \brief Remove first element in the Buffer
-/// \tparam T Buffer Type
-/// \return True if successful, false otherwise.
-template<typename T>
-bool RingBuffer<T>::remove()
-{
-    bool returnVal = false;
-
-    if ( !empty() )
-    {
-        m_lock.lock();
-        if(m_front == m_size)
-        {
-            m_front = 0;
-        }
-        m_data[m_front] = 0;
-        m_front = (m_front == m_size) ? 0 : m_front + 1; // reset front
-        m_count--;
-        m_lock.unlock();
-        returnVal = true;
-    }
-
-    return returnVal;
-}
-
-/// \brief Remove one or more elements from the buffer.
-/// \tparam T Buffer Type
-/// \param len Number of elements to remove
-/// \return true if all elements were removed, falst if it failed.
-template<typename T>
-bool RingBuffer<T>::remove(size_t len)
-{
-    if ( !empty() )
-    {
-        for(size_t i = 0; i < len; i++)
-        {
-            if(!remove())
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-    return false;
-}
 
 #endif //RADIONODE_RINGBUFFER_H

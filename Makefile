@@ -8,9 +8,6 @@ QMAKE=/Users/michealcowan/Qt/5.13.1/clang_64/bin/qmake
 all: clean runRadioNode dox
 	@echo "Build Complete"
 
-
-
-
 clean:
 	@rm -rf dst
 	@echo "Cleaning ..."
@@ -35,6 +32,7 @@ buildRadioNode: mkdst
 runRadioNode: buildRadioNode
 	@echo "Running RadioNode ..."
 	./dst/RadioNode/Radio_Unit_Tests
+	./RadioNode/generate_coverage.sh
 
 dox: mkdst
 	doxygen doc/RadioNode.dox
@@ -59,7 +57,9 @@ dox: mkdst
 	@echo "========================================================================================="
 
 
-
+thesis:
+	@echo "Generating Software Design Documentation ..."
+	make -C doc/wsu_ece_thesis
 
 
 

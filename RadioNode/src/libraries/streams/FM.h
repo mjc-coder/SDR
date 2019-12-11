@@ -131,7 +131,6 @@ public:
         convolve(real, number_of_points, WAVE1, ds, op1, number_of_points);
         convolve(real, number_of_points, WAVE2, ds, op2, number_of_points);
 
-
         for(size_t i = ds-1, j = 0; i < number_of_points; i+=ds, j++)
         {
             output[j] = (op1[i] > op2[i]) ? 1:0;

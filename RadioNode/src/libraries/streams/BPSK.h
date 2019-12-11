@@ -12,6 +12,7 @@
 using namespace std;
 
 #ifndef SIGN_FUNC
+/// Defines the SIGN function.  val > 0 = 1 or val < 0 = -1 or val = 0 then 0
 #define SIGN_FUNC(val) (( val == 0.0 ) ? 0.0 : ( (val < 0.0) ? -1.0 : 1.0))
 #endif
 
@@ -49,7 +50,7 @@ public:
 
     /// \brief Demodulate the complex stream of data.
     /// \param input input stream of complex data
-    /// \param outputdemodulated output stream of complex data
+    /// \param output output stream of complex data
     void demodulate(BBP_Block* input, BBP_Block* output);
 
     /// \brief Demodulate the complex input stream of data
@@ -131,7 +132,7 @@ public:
         RADIO_DATA_TYPE mu; ///< Mu Value
         RADIO_DATA_TYPE I; ///< I Value
         RADIO_DATA_TYPE Q; ///< Q Value
-        RADIO_DATA_TYPE muDelay; /// Mu Delay Value
+        RADIO_DATA_TYPE muDelay; ///< Mu Delay Value
 
         /// \brief Constructor / Struct Initializer
         SymbolTimingSynchronizationVars()

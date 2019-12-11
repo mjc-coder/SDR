@@ -15,8 +15,8 @@
 #include <chrono>
 #include <string.h>
 
-struct BBP_Block;
-class SafeBufferPoolQueue;
+struct BBP_Block;           ///< Predeclaration of BBP Block
+class SafeBufferPoolQueue;  ///< Predeclaration of Safe Buffer Pool Queue
 
 /// \brief Baseband Stream for passing complex data, and processing.
 /// \details Allows the user to branch the data across multiple streams for different processing.
