@@ -13,7 +13,7 @@ CONFIG += c++14 sdk_no_version_check
 ICON = Boombox.icns
 
 
-CONFIG += MACOSX   # Remove this line to enable UBUNTU compiling
+#CONFIG += MACOSX   # Remove this line to enable UBUNTU compiling
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -22,26 +22,26 @@ CONFIG += MACOSX   # Remove this line to enable UBUNTU compiling
 DEFINES += QT_DEPRECATED_WARNINGS
 
 
-MACOSX {
-    INCLUDEPATH +=  ../RadioNode/src/libraries \
-                    ../RadioNode/third-party/ \
-                    ../RadioNode/third-party/hackrf/host/libhackrf/src/ \
-                    /usr/include/libusb-1.0/ \
-                    /usr/include/libhackrf/ \
-                    /opt/local/include/libhackrf/ \
-                    /opt/local/include/libusb-1.0/ \
-                    /usr/include/libhackrf/ \
-                    /usr/include/libusb-1.0/
-} #else {
-#    INCLUDEPATH +=  /home/nano/Desktop/CLionProjects/RadioNode/src/libraries \
-#                    /home/nano/Desktop/CLionProjects/RadioNode/third-party/ \
-#                    /home/nano/Desktop/CLionProjects/RadioNode/third-party/hackrf/host/libhackrf/src/ \
+#MACOSX {
+#    INCLUDEPATH +=  ../RadioNode/src/libraries \
+#                    ../RadioNode/third-party/ \
+#                    ../RadioNode/third-party/hackrf/host/libhackrf/src/ \
 #                    /usr/include/libusb-1.0/ \
 #                    /usr/include/libhackrf/ \
 #                    /opt/local/include/libhackrf/ \
 #                    /opt/local/include/libusb-1.0/ \
 #                    /usr/include/libhackrf/ \
 #                    /usr/include/libusb-1.0/
+#} #else {
+    INCLUDEPATH +=  /home/jetson/Desktop/PROFILING/CLionProjects/RadioNode/src/libraries \
+                    /home/jetson/Desktop/PROFILING/CLionProjects/RadioNode/third-party/ \
+                    /home/jetson/Desktop/PROFILING/CLionProjects/RadioNode/third-party/hackrf/host/libhackrf/src/ \
+                    /usr/include/libusb-1.0/ \
+                    /usr/include/libhackrf/ \
+                    /opt/local/include/libhackrf/ \
+                    /opt/local/include/libusb-1.0/ \
+                    /usr/include/libhackrf/ \
+                    /usr/include/libusb-1.0/
 #}
 
 
@@ -76,10 +76,12 @@ SOURCES += \
     main.cpp \
     rtlsdr_receiver.cpp \
     ../RadioNode/src/cuda/am.cu \
+    ../RadioNode/src/cuda/fm.cu \
     ../RadioNode/src/cuda/ones_zeros.cu \
     system_usage.cpp
 
 SOURCES -= ../RadioNode/src/cuda/am.cu \
+           ../RadioNode/src/cuda/fm.cu \
            ../RadioNode/src/cuda/ones_zeros.cu
 
 HEADERS += \
@@ -148,9 +150,9 @@ MACOSX {
     DESTDIR     = $$system(pwd)
     OBJECTS_DIR = $$DESTDIR/Obj
     QMAKE_CXXFLAGS_RELEASE =-O3
-    CUDA_SOURCES += ../RadioNode/src/cuda/am.cu ../RadioNode/src/cuda/ones_zeros.cu
+    CUDA_SOURCES += ../RadioNode/src/cuda/am.cu ../RadioNode/src/cuda/ones_zeros.cu ../RadioNode/src/cuda/fm.cu
     CUDA_DIR      = /usr/local/cuda
-    INCLUDEPATH  += $$CUDA_DIR/include /usr/include/aarch64-linux-gnu/qt5/ /usr/include/aarch64-linux-gnu/qt5/QtCore/
+    INCLUDEPATH  += $$CUDA_DIR/include /usr/include/aarch64-linux-gnu/qt5/ /usr/include/aarch64-linux-gnu/qt5/QtCore/ $$INCLUDEPATH
     QMAKE_LIBDIR += $$CUDA_DIR/lib64
     LIBS += -lcudart -lcuda
     CUDA_ARCH     = sm_32
@@ -167,11 +169,13 @@ MACOSX {
 
     DISTFILES += \
         ../RadioNode/src/cuda/ones_zeros.cu \
+        ../RadioNode/src/cuda/fm.cu \
         ../RadioNode/src/cuda/am.cu
 }
 
 DISTFILES += \
-    ../RadioNode/src/cuda/ones_zeros.cu
+    ../RadioNode/src/cuda/ones_zeros.cu \
+    ../RadioNode/src/cuda/fm.cu \
     ../RadioNode/src/cuda/am_copy.cu
 
 

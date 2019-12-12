@@ -2,7 +2,7 @@
 // Created by Micheal Cowan on 9/14/19.
 //
 
-#include <Common/RingBuffer.h>
+#include <common/RingBuffer.h>
 #include <gtest/gtest.h> // googletest header file
 
 TEST(RingBuffer, Constructor)

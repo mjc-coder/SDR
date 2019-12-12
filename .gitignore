@@ -6,3 +6,4 @@
 *.gcno
 dst
 *.DS_Store
+*.pro

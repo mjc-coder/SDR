@@ -89,6 +89,29 @@
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_2">
+     <item row="2" column="1" alignment="Qt::AlignHCenter">
+      <widget class="QtLight" name="m_is_streaming" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="LightColor" stdset="0">
+        <color>
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </property>
+      </widget>
+     </item>
      <item row="4" column="0">
       <widget class="QLabel" name="label_4">
        <property name="font">
@@ -126,7 +149,7 @@
      <item row="7" column="1">
       <widget class="QComboBox" name="m_encoding_scheme">
        <property name="currentText">
-        <string>FM</string>
+        <string>AM</string>
        </property>
        <item>
         <property name="text">
@@ -296,7 +319,7 @@
         <double>47.000000000000000</double>
        </property>
        <property name="value">
-        <double>10.000000000000000</double>
+        <double>20.000000000000000</double>
        </property>
       </widget>
      </item>
@@ -309,29 +332,6 @@
        </property>
        <property name="text">
         <string>Encoding Scheme</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1" alignment="Qt::AlignHCenter">
-      <widget class="QtLight" name="m_is_streaming" native="true">
-       <property name="minimumSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="LightColor" stdset="0">
-        <color>
-         <red>0</red>
-         <green>0</green>
-         <blue>0</blue>
-        </color>
        </property>
       </widget>
      </item>
@@ -364,37 +364,6 @@
        <property name="value">
         <double>100000.000000000000000</double>
        </property>
-      </widget>
-     </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="label_10">
-       <property name="font">
-        <font>
-         <pointsize>18</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Data Selection</string>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="1">
-      <widget class="QComboBox" name="m_DataSelection">
-       <item>
-        <property name="text">
-         <string>User Data</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Incrementing Numbers</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Incrementing Letters</string>
-        </property>
-       </item>
       </widget>
      </item>
     </layout>

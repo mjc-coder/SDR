@@ -34,5 +34,5 @@ add_executable(Radio_Unit_Tests
         src/test/TEST_Resample.cpp
         src/test/TEST_RingBuffer.cpp)
 
-target_link_libraries(Radio_Unit_Tests ${GTEST_BOTH_LIBRARIES})
+target_link_libraries(Radio_Unit_Tests ${GTEST_BOTH_LIBRARIES} pthread)
 

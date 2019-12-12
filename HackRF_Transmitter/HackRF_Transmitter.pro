@@ -83,8 +83,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 
-#unix: LIBS += -L/lib/aarch64-linux-gnu/ -lusb-1.0
-unix: LIBS += -L/usr/local/lib -lusb-1.0
+unix: LIBS += -L/lib/aarch64-linux-gnu/ -lusb-1.0
+#unix: LIBS += -L/usr/local/lib -lusb-1.0
 
 
 RESOURCES += \
