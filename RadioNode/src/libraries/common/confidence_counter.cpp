@@ -1,6 +1,4 @@
-//
-// Created by Micheal Cowan on 9/13/19.
-//
+/// @file SDR/RadioNode/src/libraries/common/confidence_counter.cpp
 
 #include <common/confidence_counter.h>
 #include <iostream>

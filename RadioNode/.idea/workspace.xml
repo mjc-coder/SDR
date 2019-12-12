@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AnalysisUIOptions">
-    <option name="SCOPE_TYPE" value="8" />
+    <option name="SCOPE_TYPE" value="3" />
     <option name="CUSTOM_SCOPE_NAME" value="RadioNode" />
   </component>
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
@@ -16,124 +16,27 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f5767b57-d2bd-45de-9b8f-534972f64ccd" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/../Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeCache.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeCache.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CMakeCCompiler.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CMakeCCompiler.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CMakeCXXCompiler.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CMakeCXXCompiler.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CMakeSystem.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CMakeSystem.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CompilerIdC/CMakeCCompilerId.c" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CompilerIdC/CMakeCCompilerId.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CompilerIdCXX/CMakeCXXCompilerId.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CompilerIdCXX/CMakeCXXCompilerId.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CompilerIdCXX/a.out" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CompilerIdCXX/a.out" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeDirectoryInformation.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeDirectoryInformation.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeOutput.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeOutput.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile2" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile2" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/CXX.includecache" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/CXX.includecache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/DependInfo.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/DependInfo.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/build.make" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/build.make" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/cmake_clean.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/cmake_clean.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/depend.internal" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/depend.internal" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/flags.make" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/flags.make" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/DC_Filter.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/DC_Filter.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/DC_Filter.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/DC_Filter.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/FFT.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/FFT.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/FFT.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/FFT.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/FirstOrderDigitalIntegration.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/FirstOrderDigitalIntegration.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/FirstOrderDigitalIntegration.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/FirstOrderDigitalIntegration.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/LowPassFilter.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/LowPassFilter.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/LowPassFilter.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/LowPassFilter.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/Normalize.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/Normalize.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/Normalize.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/Normalize.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/NotchFilter.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/NotchFilter.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/NotchFilter.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/NotchFilter.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/Resample.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/Resample.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/Resample.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/Resample.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/fifth_order_filter.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/fifth_order_filter.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/fifth_order_filter.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/DigitalSignalProcessing/fifth_order_filter.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/common/BBP_Block.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/common/BBP_Block.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/common/BBP_Block.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/common/BBP_Block.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/common/Baseband_Stream.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/common/Baseband_Stream.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/common/Baseband_Stream.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/common/Baseband_Stream.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/common/SafeBufferPoolQueue.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/common/SafeBufferPoolQueue.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/common/SafeBufferPoolQueue.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/common/SafeBufferPoolQueue.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/common/confidence_counter.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/common/confidence_counter.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/common/confidence_counter.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/common/confidence_counter.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/crc/crc8.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/crc/crc8.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/crc/crc8.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/crc/crc8.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/network/UDP_Blaster.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/network/UDP_Blaster.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/network/UDP_Blaster.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/network/UDP_Blaster.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/streams/BPSK.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/streams/BPSK.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/streams/BPSK.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/streams/BPSK.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/streams/DataOutput.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/streams/DataOutput.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/streams/FM_Demodulator.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/streams/FM_Demodulator.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/streams/QPSK.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/streams/QPSK.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/streams/QPSK.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/streams/QPSK.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/streams/RawDataOutput.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/libraries/streams/RawDataOutput.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_AM.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_AM.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_AM.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_AM.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_BPSK.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_BPSK.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_BPSK.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_BPSK.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_FM.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_FM.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_Modulator_Demodulator.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_Modulator_Demodulator.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_Modulator_Demodulator.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_Modulator_Demodulator.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_PacketFramer.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_PacketFramer.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_PacketFramer.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_PacketFramer.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_QPSK.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_QPSK.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_QPSK.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_QPSK.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_Resample.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_Resample.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_Resample.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_Resample.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_RingBuffer.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_RingBuffer.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_RingBuffer.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_RingBuffer.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_crc.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_crc.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_crc.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/src/test/TEST_crc.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/third-party/FIR-filter-class/filt.cpp.gcda" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/third-party/FIR-filter-class/filt.cpp.gcno" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/third-party/FIR-filter-class/filt.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Radio_Unit_Tests.dir/third-party/FIR-filter-class/filt.cpp.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/TargetDirectories.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/TargetDirectories.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-environment.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-environment.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-log.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/cmake.check_cache" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/cmake.check_cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CTestTestfile.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CTestTestfile.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Project.cbp" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Project.cbp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Radio_Unit_Tests" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Radio_Unit_Tests" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/cmake_install.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/cmake_install.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/cuda/am.cu" beforeDir="false" afterPath="$PROJECT_DIR$/src/cuda/am.cu" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/libraries/streams/AM.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/libraries/streams/AM.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libraries/DigitalSignalProcessing/DC_Filter.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/libraries/DigitalSignalProcessing/DC_Filter.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libraries/DigitalSignalProcessing/FirstOrderDigitalIntegration.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/libraries/DigitalSignalProcessing/FirstOrderDigitalIntegration.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libraries/DigitalSignalProcessing/NotchFilter.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/libraries/DigitalSignalProcessing/NotchFilter.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libraries/DigitalSignalProcessing/fifth_order_filter.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/libraries/DigitalSignalProcessing/fifth_order_filter.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libraries/common/Baseband_Stream.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/libraries/common/Baseband_Stream.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libraries/common/Baseband_Stream.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/libraries/common/Baseband_Stream.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libraries/common/Common_Deffinitions.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/libraries/common/Common_Deffinitions.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libraries/common/RingBuffer.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/libraries/common/RingBuffer.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libraries/common/SafeBufferPoolQueue.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/libraries/common/SafeBufferPoolQueue.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libraries/common/confidence_counter.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/libraries/common/confidence_counter.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libraries/hackrf/HackRF_radio.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/libraries/hackrf/HackRF_radio.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libraries/hackrf/HackRF_radio.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/libraries/hackrf/HackRF_radio.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libraries/network/PacketFramer.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/libraries/network/PacketFramer.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libraries/rtl_sdr/rtlsdr_radio.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/libraries/rtl_sdr/rtlsdr_radio.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libraries/streams/BPSK.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/libraries/streams/BPSK.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/libraries/streams/FM.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/libraries/streams/FM.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TEST_AM.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/TEST_AM.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TEST_FM.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/TEST_FM.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TEST_Modulator_Demodulator.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/TEST_Modulator_Demodulator.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/am_demod_test.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/fm_demod_test.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libraries/streams/QPSK.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/libraries/streams/QPSK.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../doc/wsu_ece_thesis" beforeDir="false" afterPath="$PROJECT_DIR$/../doc/wsu_ece_thesis" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -181,11 +84,12 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.advertisement.text.has.clang-format" value="true" />
     <property name="com.intellij.ide.scratch.LRUPopupBuilder$1/New Scratch File" value="ObjectiveC" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../doc/generate_appendix.sh" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
-    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+    <property name="settings.editor.splitter.proportion" value="0.31755424" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -360,6 +264,17 @@
       <workItem from="1573090798221" duration="3240000" />
       <workItem from="1573500132345" duration="1222000" />
       <workItem from="1573745117286" duration="412000" />
+      <workItem from="1574085136314" duration="112000" />
+      <workItem from="1574086387053" duration="5390000" />
+      <workItem from="1574256737826" duration="508000" />
+      <workItem from="1574370434100" duration="6024000" />
+      <workItem from="1574565047512" duration="1298000" />
+      <workItem from="1574604137549" duration="2931000" />
+      <workItem from="1574611981174" duration="14212000" />
+      <workItem from="1574692963516" duration="1363000" />
+      <workItem from="1574798228381" duration="4580000" />
+      <workItem from="1575071511034" duration="6151000" />
+      <workItem from="1575121189906" duration="14596000" />
     </task>
     <servers />
   </component>
@@ -378,6 +293,16 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myShow1" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="SHOW_DIRTY_RECURSIVELY" value="true" />
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/hackrf/hackrf" />
+      <path value="$PROJECT_DIR$/third-party/hackrf/hackrf" />
+    </ignored-roots>
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

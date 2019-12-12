@@ -1,6 +1,4 @@
-//
-// Created by Micheal Cowan on 9/7/19.
-//
+/// @file SDR/RadioNode/src/libraries/common/BBP_Block.h
 
 #ifndef RADIONODE_BBP_BLOCK_H
 #define RADIONODE_BBP_BLOCK_H
@@ -8,13 +6,15 @@
 #include <common/Common_Deffinitions.h>
 #include <string.h>
 
-extern const Complex NULLPOINT;
+extern const Complex NULLPOINT; ///< NULL Complex Data Point
 
+/// BBP Black is a baseband point block of complex data points.
 struct BBP_Block
 {
-    Complex_Array points;   /// point array real/imag points
-    size_t n_points;        /// Actual number of points in the array
+    Complex_Array points;   ///< point array real/imag points
+    size_t n_points;        ///< Actual number of points in the array
 
+    /// \brief Constructor
     BBP_Block()
     : points(NULLPOINT, BLOCK_READ_SIZE)
     , n_points(0)
@@ -22,6 +22,8 @@ struct BBP_Block
         reset();
     }
 
+    /// \brief Constructor with given size
+    /// \param size Number of points to initialize the BBP Block with
     BBP_Block(size_t size)
     : points(NULLPOINT, size)
     , n_points(0)
@@ -29,32 +31,22 @@ struct BBP_Block
         reset();
     }
 
-    size_t full_size(void) const
-    {
-        return sizeof(BBP_Block);
-    }
-
+    /// \brief Get the total number of points
+    /// \return number of points in BBP Block
     size_t number_of_points() const
     {
         return n_points;
     }
 
-    size_t number_of_points_byte_size() const
-    {
-        return n_points*sizeof(Complex);
-    }
-
-    size_t empty_space() const
-    {
-        return BLOCK_READ_SIZE - n_points;
-    }
-
+    /// \brief Clears the BBP Block
     void reset()
     {
         n_points = 0;
         memset(&points[0], 0, points.size()*sizeof(Complex));
     }
 
+    /// \brief Hard Copy the given block to this one.
+    /// \param block Block to copy
     void hard_copy(const BBP_Block &block)
     {
         memcpy(&points[0], &block.points[0], sizeof(Complex_Array));

@@ -1,0 +1,3 @@
+[submodule "doc/wsu_ece_thesis"]
+	path = doc/wsu_ece_thesis
+	url = https://github.com/ekgibbons/wsu_ece_thesis.git

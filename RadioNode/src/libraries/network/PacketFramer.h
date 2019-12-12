@@ -1,6 +1,5 @@
-//
-// Created by Micheal Cowan on 9/13/19.
-//
+/// @file SDR/RadioNode/src/libraries/network/PacketFramer.h
+
 
 #ifndef RADIONODE_PACKETFRAMER_H
 #define RADIONODE_PACKETFRAMER_H
@@ -12,44 +11,50 @@
 #include <common/RingBuffer.h>
 #include <string.h>
 
-// Packet Description
-// <unique word 16 bit> |  <length 8 bit> | <crc 8 bit>
-// < data > [no more than 250 bytes to keep it simple]
-//
-// Converted to serial bits
-// 32 + 250*8 = 2032 bytes of single bits 0 and 1
 
 
+/// \brief Default Unique word for Packet Framer Class
 const uint8_t PACKET_FRAMER_UNIQUE_WORD[16] =
         {1,1,1,1,1,0,1,0,
          1,1,0,0,1,1,1,0};
 
+
+
+/// \brief Packet Framer Deframer interface
+/// \details Packet Description
+///        <unique word 16 bit> |  <length 8 bit> | <crc 8 bit>
+///        < data > [no more than 250 bytes to keep it simple]
+///
+/// Converted to serial bits
+/// 32 + 250*8 = 2032 bytes of single bits 0 and 1
+/// \tparam data_type Bit Data Type
 template <class data_type>
 class PacketFramer
 {
 private:
-    bool m_crc_enable;
-    data_type* m_pkt;
-    crc8 crcCalculator;
+    bool m_crc_enable;  ///< CRC enabled
+    data_type* m_pkt;   ///< Internal Packet Data Type
+    crc8 crcCalculator; ///< 8 bit CRC Calculator utility
 
 public:
-    static constexpr size_t MAX_BYTES_DATA = 250;
-    static constexpr size_t UNIQUE_WORD_SIZE_BIT = 16;
-    static constexpr size_t UNIQUE_WORD_SIZE_BYTE = 2;
-    static constexpr size_t UNIQUE_WORD_POS = 0;
-    static constexpr size_t LENGTH_SIZE_BIT = 8;
-    static constexpr size_t LENGTH_SIZE_BYTE = 1;
-    static constexpr size_t LENGTH_POS = UNIQUE_WORD_POS + UNIQUE_WORD_SIZE_BIT;
-    static constexpr size_t CRC_SIZE_BIT = 8;
-    static constexpr size_t CRC_SIZE_BYTE = 1;
-    static constexpr size_t CRC_POS = LENGTH_POS + LENGTH_SIZE_BIT;
-    static constexpr size_t DATA_SIZE_BIT = MAX_BYTES_DATA*8;
-    static constexpr size_t DATA_SIZE_BYTE = MAX_BYTES_DATA;
-    static constexpr size_t DATA_POS = CRC_POS + CRC_SIZE_BIT;
-    static constexpr size_t MAX_PKT_SIZE_BITS = DATA_POS + DATA_SIZE_BIT;
-    static constexpr size_t MAX_PKT_SIZE_BYTE = MAX_PKT_SIZE_BITS/8;
+    static constexpr size_t MAX_BYTES_DATA = 250; ///< Max Data size in bytes before conversion
+    static constexpr size_t UNIQUE_WORD_SIZE_BIT = 16;  ///< Unique Word Size in Bits
+    static constexpr size_t UNIQUE_WORD_SIZE_BYTE = 2;  ///< Unique Word Size in Bytes
+    static constexpr size_t UNIQUE_WORD_POS = 0; ///< Unique word Position in Bit expanded packet
+    static constexpr size_t LENGTH_SIZE_BIT = 8; ///< Length field of the packet in bits
+    static constexpr size_t LENGTH_SIZE_BYTE = 1; ///< Length field of the packet in bytes
+    static constexpr size_t LENGTH_POS = UNIQUE_WORD_POS + UNIQUE_WORD_SIZE_BIT; ///< Lenght field position in bit packet
+    static constexpr size_t CRC_SIZE_BIT = 8; ///< CRC field size in bits
+    static constexpr size_t CRC_SIZE_BYTE = 1; ///< CRC field size in bytes
+    static constexpr size_t CRC_POS = LENGTH_POS + LENGTH_SIZE_BIT; ///< CRC field position in bit packet
+    static constexpr size_t DATA_SIZE_BIT = MAX_BYTES_DATA*8; ///< Data field size in bits
+    static constexpr size_t DATA_SIZE_BYTE = MAX_BYTES_DATA; ///< Data field size in bytes
+    static constexpr size_t DATA_POS = CRC_POS + CRC_SIZE_BIT; ///< Data field position in bit packet
+    static constexpr size_t MAX_PKT_SIZE_BITS = DATA_POS + DATA_SIZE_BIT; ///< Max Packet size in bits
+    static constexpr size_t MAX_PKT_SIZE_BYTE = MAX_PKT_SIZE_BITS/8; ///< Max Packet size in bytes
 
 public:
+    /// \brief Binary Bit lookup table used for converting bytes into bits quickly
     const data_type binary_array[256][8]  =
             {
                     {0,0,0,0,0,0,0,0},
@@ -311,6 +316,7 @@ public:
             };
 
 public:
+    /// \brief Constructor
     PacketFramer()
     : m_crc_enable(true)
     , m_pkt(nullptr)
@@ -326,6 +332,7 @@ public:
         }
     }
 
+    /// \brief Destructor
     ~PacketFramer()
     {
         if(m_pkt)
@@ -334,16 +341,25 @@ public:
         }
     }
 
+    /// \brief Enable checking the CRC for packet validity
+    /// \param check Enable/Disable
     void checkCRC(bool check)
     {
         m_crc_enable = check;
     }
 
+    /// \brief check if the crc is enabled
+    /// \return true if enabled, false otherwise.
     bool checkCRC() const
     {
         return m_crc_enable;
     }
 
+    /// \brief Serialize input data bytes
+    /// \param data input data
+    /// \param length lenght of the input data
+    /// \param pkt Output BBP Block of data
+    /// \return length of serialized data
     int serialize(uint8_t* data, size_t length, BBP_Block* pkt)
     {
         if(length > DATA_SIZE_BYTE)
@@ -396,6 +412,15 @@ public:
         return MAX_PKT_SIZE_BITS; // total packet size in bits
     }
 
+    /// \brief Deserialize Bit stream
+    /// \param buf Input buffer stream of bits
+    /// \param pkt Output Packet
+    /// \param pkt_buffer_size Output Packet Buffer size
+    /// \param validPacket Output valid Packet Flag
+    /// \param validCRC Output valid CRC flag
+    /// \param validHeader Output valid Header flag
+    /// \param bad_bits Output number of bad bits detected
+    /// \return Total number of bytes in returned packet.  0 if not enough bits, -1 if invalid packet, >0 is valid packet of bytes
     int deserialize(RingBuffer<data_type>& buf, uint8_t* pkt, size_t pkt_buffer_size, bool& validPacket, bool& validCRC, bool& validHeader, int& bad_bits)
     {
         validPacket = false;
@@ -487,6 +512,10 @@ public:
         return MAX_PKT_SIZE_BYTE; // Signal that we need to remove the whole packet from the buffer
     }
 
+    /// \brief Convert 8 bits at index to a byte.
+    /// \param buffer Input bit bugger
+    /// \param index Bit index in the array
+    /// \return Byte value from the bit stream.
     static inline uint8_t ToByte(data_type* buffer, size_t index)
     {
         uint8_t c = 0;
@@ -501,6 +530,10 @@ public:
         return c;
     }
 
+    /// \brief Convert 8 bits at index to a byte.
+    /// \param buffer Input Bit Buffer
+    /// \param index Bit index in the array
+    /// \return Byte value from the bit stream
     static inline uint8_t ToByte(RingBuffer<data_type>& buffer, size_t index)
     {
         uint8_t c = 0;

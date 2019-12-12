@@ -1,6 +1,4 @@
-//
-// Created by Micheal Cowan on 2019-08-04.
-//
+/// @file SDR/RadioNode/src/libraries/hackrf/HackRF_radio.cpp
 
 #include <hackrf/HackRF_radio.h>
 #include <DigitalSignalProcessing/Resample.h>
@@ -12,11 +10,10 @@
 #include <streams/FM.h>
 
 /* 10MHz default sample rate */
-#define DEFAULT_SAMPLE_RATE_HZ      10000000
-#define SIGNAL_FREQ                 11000 * (1/(2 * PI))
-#define DELTA_T                     1.0/DEFAULT_SAMPLE_RATE_HZ
-
-#define AMPLITUDE 127.0
+#define DEFAULT_SAMPLE_RATE_HZ      10000000                    ///< Default Transmit Sample Rate
+#define SIGNAL_FREQ                 11000 * (1/(2 * PI))        ///< Default Signal Frequency
+#define DELTA_T                     1.0/DEFAULT_SAMPLE_RATE_HZ  ///< Default Sample Rate
+#define AMPLITUDE 127.0 ///< MAX Transmission amplitude.
 
 uint64_t HackRF_radio::unique_word[] =
 {1,1,0,1,1,1,1,0,

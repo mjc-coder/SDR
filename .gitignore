@@ -1,0 +1,9 @@
+*.idea
+*.info
+*.tmp
+*.dat
+*.gcda
+*.gcno
+dst
+*.DS_Store
+*.pro
